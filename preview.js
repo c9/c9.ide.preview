@@ -216,6 +216,7 @@ define(function(require, exports, module) {
                                 //     padding    : 0,
                                 //     childNodes : [
                                         new ui.bar({
+                                            id         : "locationbar",
                                             "class"    : "locationbar",
                                             childNodes : [
                                                 new ui.textbox({
@@ -398,13 +399,17 @@ define(function(require, exports, module) {
                 
                 state.path      = session.path;
                 state.previewer = session.previewer.name;
+                
+                session.getEmitter()("state.get", e);
             });
             plugin.on("state.set", function(e){
-                var state = e.state;
+                var state   = e.state;
                 var session = e.doc.getSession();
                 
                 session.path      = state.path;
                 // session.previewer = state.previewer;
+                
+                session.getEmitter()("state.set", e);
             });
             plugin.on("clear", function(){
             });

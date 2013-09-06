@@ -103,6 +103,7 @@
             border: 1px solid #000;
             border-left : 0;
             border-radius: 0 3px 3px 0;
+            position : relative;
         }
         .btn-preview-choiceOver{
             background: rgb(200, 200, 200);
