@@ -311,7 +311,7 @@ define(function(require, exports, module) {
             plugin.on("load", function(){
             });
             
-            plugin.on("document.load", function(e){
+            plugin.on("documentLoad", function(e){
                 var doc     = e.doc;
                 var session = doc.getSession();
                 
@@ -379,7 +379,7 @@ define(function(require, exports, module) {
                     }
                 }, session);
             });
-            plugin.on("document.activate", function(e){
+            plugin.on("documentActivate", function(e){
                 if (currentDocument)
                     currentDocument.getSession().deactivate();
                     
@@ -388,7 +388,7 @@ define(function(require, exports, module) {
                 
                 currentSession.activate();
             });
-            plugin.on("document.unload", function(e){
+            plugin.on("documentUnload", function(e){
                 var session = e.doc.getSession();
                 session.previewer.unloadDocument(e.doc);
                 session.navigate(); // Remove the listener
