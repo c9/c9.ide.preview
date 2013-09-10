@@ -79,7 +79,7 @@ define(function(require, exports, module) {
                 button.setAttribute("disabled", disabled);
             }, handle);
             
-            tabs.on("page.destroy", function(e){
+            tabs.on("pageDestroy", function(e){
                 if (e.last)
                     button.disable();
             }, handle);
