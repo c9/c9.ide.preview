@@ -356,7 +356,7 @@ define(function(require, exports, module) {
                         doc.undoManager.on("change", changeListener);
                         
                         // Listen to path changes
-                        doc.page.on("path.set", renameListener);
+                        doc.page.on("setPath", renameListener);
                     }
                     
                     emit("navigate", e); 
@@ -393,7 +393,7 @@ define(function(require, exports, module) {
                 session.previewer.unloadDocument(e.doc);
                 session.navigate(); // Remove the listener
             });
-            plugin.on("state.get", function(e){
+            plugin.on("getState", function(e){
                 var state = e.state;
                 var session = e.doc.getSession();
                 
@@ -402,7 +402,7 @@ define(function(require, exports, module) {
                 
                 session.getEmitter()("state.get", e);
             });
-            plugin.on("state.set", function(e){
+            plugin.on("setState", function(e){
                 var state   = e.state;
                 var session = e.doc.getSession();
                 
