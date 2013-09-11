@@ -56,7 +56,7 @@ define(function(require, exports, module) {
                 caption : "Preview",
                 disabled : true,
                 onclick : function() {
-                    var tab = tabs.focussedPage;
+                    var tab = tabs.focussedTab;
                     if (tab && tab.editor.type === "preview")
                         return;
                     
@@ -317,7 +317,7 @@ define(function(require, exports, module) {
                 
                 function changeListener(){
                     session.update({
-                        saved: session.previewPage
+                        saved: session.previewTab
                             .document.undoManager.isAtBookmark()
                     });
                 };
@@ -331,8 +331,8 @@ define(function(require, exports, module) {
                 session.activate   = function(){ emit("activate"); };
                 session.deactivate = function(){ emit("deactivate"); };
                 session.navigate   = function(e){ 
-                    if (session.previewPage) {
-                        var doc = session.previewPage.document;
+                    if (session.previewTab) {
+                        var doc = session.previewTab.document;
                         
                         // Remove previous change listener
                         doc.undoManager.off("change", changeListener);
@@ -346,11 +346,11 @@ define(function(require, exports, module) {
                     // Find new tab
                     session.path        = e.url
                     e.tab              =
-                    session.previewPage = tabs.findPage(session.path);
+                    session.previewTab = tabs.findTab(session.path);
                     
                     // Set new change listener
-                    if (session.previewPage) {
-                        var doc = session.previewPage.document;
+                    if (session.previewTab) {
+                        var doc = session.previewTab.document;
                         
                         // Listen to value changes
                         doc.undoManager.on("change", changeListener);
@@ -373,8 +373,8 @@ define(function(require, exports, module) {
                 session.navigate({ url: session.path });
                 
                 tabs.on("open", function(e){
-                    if (!session.previewPage && e.options.path == session.path) {
-                        session.previewPage = e.tab;
+                    if (!session.previewTab && e.options.path == session.path) {
+                        session.previewTab = e.tab;
                         session.navigate({ url : session.path, tab: e.tab });
                     }
                 }, session);
