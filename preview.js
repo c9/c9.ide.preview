@@ -17,7 +17,7 @@ define(function(require, exports, module) {
     // @todo - Add Coffee Plugin
     // @todo - Add Jade Plugin
     // @todo - Add HTML/CSS/JS (auto-updating) Plugin
-    // @todo - Add additional functionality, such as popout (levels, in editor, tab, browser tab)
+    // @todo - Add additional functionality, such as popout (levels, in editor, pane, browser pane)
     // @todo - Fix the activate/deactivate events on session. They leak / are not cleaned up
     
     function main(options, imports, register) {
