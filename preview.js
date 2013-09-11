@@ -56,17 +56,17 @@ define(function(require, exports, module) {
                 caption : "Preview",
                 disabled : true,
                 onclick : function() {
-                    var page = tabs.focussedPage;
-                    if (page && page.editor.type === "preview")
+                    var tab = tabs.focussedPage;
+                    if (tab && tab.editor.type === "preview")
                         return;
                     
                     tabs.open({
-                        name       : "preview-" + page.path,
+                        name       : "preview-" + tab.path,
                         editorType : "preview",
                         active     : true,
                         document   : {
                             preview : {
-                                path : page.path
+                                path : tab.path
                             }
                         }
                     }, function(){});
@@ -75,11 +75,11 @@ define(function(require, exports, module) {
             ui.insertByIndex(parent, button, 10, handle);
             
             tabs.on("focus", function(e){
-                var disabled = typeof e.page.path != "string";
+                var disabled = typeof e.tab.path != "string";
                 button.setAttribute("disabled", disabled);
             }, handle);
             
-            tabs.on("pageDestroy", function(e){
+            tabs.on("tabDestroy", function(e){
                 if (e.last)
                     button.disable();
             }, handle);
@@ -196,7 +196,7 @@ define(function(require, exports, module) {
                 drawHandle();
                 
                 // Create UI elements
-                var bar = e.page.appendChild(new ui.vsplitbox({
+                var bar = e.tab.appendChild(new ui.vsplitbox({
                     anchors    : "0 0 0 0",
                     childNodes : [
                         new ui.hsplitbox({
@@ -338,14 +338,14 @@ define(function(require, exports, module) {
                         doc.undoManager.off("change", changeListener);
                         
                         // Remove previous path listener
-                        doc.page.off("path.set", renameListener);
+                        doc.tab.off("path.set", renameListener);
                     }
                     
                     if (!e) return; // For cleanup
                     
-                    // Find new page
+                    // Find new tab
                     session.path        = e.url
-                    e.page              =
+                    e.tab              =
                     session.previewPage = tabs.findPage(session.path);
                     
                     // Set new change listener
@@ -356,14 +356,14 @@ define(function(require, exports, module) {
                         doc.undoManager.on("change", changeListener);
                         
                         // Listen to path changes
-                        doc.page.on("setPath", renameListener);
+                        doc.tab.on("setPath", renameListener);
                     }
                     
                     emit("navigate", e); 
                 };
                 
-                doc.page.backgroundColor = "rgb(41, 41, 41)";
-                doc.page.className.add("dark");
+                doc.tab.backgroundColor = "rgb(41, 41, 41)";
+                doc.tab.className.add("dark");
                 
                 session.path = session.path || e.state.path;
                 
@@ -374,8 +374,8 @@ define(function(require, exports, module) {
                 
                 tabs.on("open", function(e){
                     if (!session.previewPage && e.options.path == session.path) {
-                        session.previewPage = e.page;
-                        session.navigate({ url : session.path, page: e.page });
+                        session.previewPage = e.tab;
+                        session.navigate({ url : session.path, tab: e.tab });
                     }
                 }, session);
             });
