@@ -7,7 +7,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "editor", "editors", "util", "settings", "menus", "ui", 
-        "preferences", "layout", "tabs"
+        "preferences", "layout", "tabManager"
     ];
     main.provides = ["preview"];
     return main;
@@ -28,7 +28,7 @@ define(function(require, exports, module) {
         var util     = imports.util;
         var settings = imports.settings;
         var layout   = imports.layout;
-        var tabs     = imports.tabs;
+        var tabs     = imports.tabManager;
         var prefs    = imports.preferences;
         var menus    = imports.menus;
         var Menu     = menus.Menu;
