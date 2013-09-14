@@ -6,7 +6,7 @@
  */
 define(function(require, exports, module) {
     main.consumes = [
-        "c9", "editor", "editors", "util", "settings", "menus", "ui", 
+        "c9", "Editor", "editors", "util", "settings", "Menu", "ui", 
         "preferences", "layout", "tabManager"
     ];
     main.provides = ["preview"];
@@ -21,7 +21,7 @@ define(function(require, exports, module) {
     // @todo - Fix the activate/deactivate events on session. They leak / are not cleaned up
     
     function main(options, imports, register) {
-        var Editor   = imports.editor;
+        var Editor   = imports.Editor;
         var editors  = imports.editors;
         var c9       = imports.c9;
         var ui       = imports.ui;
@@ -30,10 +30,7 @@ define(function(require, exports, module) {
         var layout   = imports.layout;
         var tabs     = imports.tabManager;
         var prefs    = imports.preferences;
-        var menus    = imports.menus;
-        var Menu     = menus.Menu;
-        // var MenuItem = menus.MenuItem;
-        // var Divider  = menus.Divider;
+        var Menu     = imports.Menu;
         
         var extensions = [];
         var counter    = 0;
