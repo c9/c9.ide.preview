@@ -6,8 +6,8 @@
  */
 define(function(require, exports, module) {
     main.consumes = [
-        "c9", "Editor", "editors", "util", "settings", "Menu", "ui", 
-        "preferences", "layout", "tabManager"
+        "c9", "editor", "editors", "util", "settings", "menus", "ui", 
+        "preferences", "layout", "tabs"
     ];
     main.provides = ["preview"];
     return main;
@@ -17,20 +17,23 @@ define(function(require, exports, module) {
     // @todo - Add Coffee Plugin
     // @todo - Add Jade Plugin
     // @todo - Add HTML/CSS/JS (auto-updating) Plugin
-    // @todo - Add additional functionality, such as popout (levels, in editor, pane, browser pane)
+    // @todo - Add additional functionality, such as popout (levels, in editor, tab, browser tab)
     // @todo - Fix the activate/deactivate events on session. They leak / are not cleaned up
     
     function main(options, imports, register) {
-        var Editor   = imports.Editor;
+        var Editor   = imports.editor;
         var editors  = imports.editors;
         var c9       = imports.c9;
         var ui       = imports.ui;
         var util     = imports.util;
         var settings = imports.settings;
         var layout   = imports.layout;
-        var tabs     = imports.tabManager;
+        var tabs     = imports.tabs;
         var prefs    = imports.preferences;
-        var Menu     = imports.Menu;
+        var menus    = imports.menus;
+        var Menu     = menus.Menu;
+        // var MenuItem = menus.MenuItem;
+        // var Divider  = menus.Divider;
         
         var extensions = [];
         var counter    = 0;
@@ -53,17 +56,17 @@ define(function(require, exports, module) {
                 caption : "Preview",
                 disabled : true,
                 onclick : function() {
-                    var tab = tabs.focussedTab;
-                    if (tab && tab.editor.type === "preview")
+                    var page = tabs.focussedPage;
+                    if (page && page.editor.type === "preview")
                         return;
                     
                     tabs.open({
-                        name       : "preview-" + tab.path,
+                        name       : "preview-" + page.path,
                         editorType : "preview",
                         active     : true,
                         document   : {
                             preview : {
-                                path : tab.path
+                                path : page.path
                             }
                         }
                     }, function(){});
@@ -72,11 +75,11 @@ define(function(require, exports, module) {
             ui.insertByIndex(parent, button, 10, handle);
             
             tabs.on("focus", function(e){
-                var disabled = typeof e.tab.path != "string";
+                var disabled = typeof e.page.path != "string";
                 button.setAttribute("disabled", disabled);
             }, handle);
             
-            tabs.on("tabDestroy", function(e){
+            tabs.on("page.destroy", function(e){
                 if (e.last)
                     button.disable();
             }, handle);
@@ -193,7 +196,7 @@ define(function(require, exports, module) {
                 drawHandle();
                 
                 // Create UI elements
-                var bar = e.tab.appendChild(new ui.vsplitbox({
+                var bar = e.page.appendChild(new ui.vsplitbox({
                     anchors    : "0 0 0 0",
                     childNodes : [
                         new ui.hsplitbox({
@@ -308,13 +311,13 @@ define(function(require, exports, module) {
             plugin.on("load", function(){
             });
             
-            plugin.on("documentLoad", function(e){
+            plugin.on("document.load", function(e){
                 var doc     = e.doc;
                 var session = doc.getSession();
                 
                 function changeListener(){
                     session.update({
-                        saved: session.previewTab
+                        saved: session.previewPage
                             .document.undoManager.isAtBookmark()
                     });
                 };
@@ -328,39 +331,39 @@ define(function(require, exports, module) {
                 session.activate   = function(){ emit("activate"); };
                 session.deactivate = function(){ emit("deactivate"); };
                 session.navigate   = function(e){ 
-                    if (session.previewTab) {
-                        var doc = session.previewTab.document;
+                    if (session.previewPage) {
+                        var doc = session.previewPage.document;
                         
                         // Remove previous change listener
                         doc.undoManager.off("change", changeListener);
                         
                         // Remove previous path listener
-                        doc.tab.off("path.set", renameListener);
+                        doc.page.off("path.set", renameListener);
                     }
                     
                     if (!e) return; // For cleanup
                     
-                    // Find new tab
+                    // Find new page
                     session.path        = e.url
-                    e.tab              =
-                    session.previewTab = tabs.findTab(session.path);
+                    e.page              =
+                    session.previewPage = tabs.findPage(session.path);
                     
                     // Set new change listener
-                    if (session.previewTab) {
-                        var doc = session.previewTab.document;
+                    if (session.previewPage) {
+                        var doc = session.previewPage.document;
                         
                         // Listen to value changes
                         doc.undoManager.on("change", changeListener);
                         
                         // Listen to path changes
-                        doc.tab.on("setPath", renameListener);
+                        doc.page.on("path.set", renameListener);
                     }
                     
                     emit("navigate", e); 
                 };
                 
-                doc.tab.backgroundColor = "rgb(41, 41, 41)";
-                doc.tab.className.add("dark");
+                doc.page.backgroundColor = "rgb(41, 41, 41)";
+                doc.page.className.add("dark");
                 
                 session.path = session.path || e.state.path;
                 
@@ -370,13 +373,13 @@ define(function(require, exports, module) {
                 session.navigate({ url: session.path });
                 
                 tabs.on("open", function(e){
-                    if (!session.previewTab && e.options.path == session.path) {
-                        session.previewTab = e.tab;
-                        session.navigate({ url : session.path, tab: e.tab });
+                    if (!session.previewPage && e.options.path == session.path) {
+                        session.previewPage = e.page;
+                        session.navigate({ url : session.path, page: e.page });
                     }
                 }, session);
             });
-            plugin.on("documentActivate", function(e){
+            plugin.on("document.activate", function(e){
                 if (currentDocument)
                     currentDocument.getSession().deactivate();
                     
@@ -385,12 +388,12 @@ define(function(require, exports, module) {
                 
                 currentSession.activate();
             });
-            plugin.on("documentUnload", function(e){
+            plugin.on("document.unload", function(e){
                 var session = e.doc.getSession();
                 session.previewer.unloadDocument(e.doc);
                 session.navigate(); // Remove the listener
             });
-            plugin.on("getState", function(e){
+            plugin.on("state.get", function(e){
                 var state = e.state;
                 var session = e.doc.getSession();
                 
@@ -399,7 +402,7 @@ define(function(require, exports, module) {
                 
                 session.getEmitter()("state.get", e);
             });
-            plugin.on("setState", function(e){
+            plugin.on("state.set", function(e){
                 var state   = e.state;
                 var session = e.doc.getSession();
                 
