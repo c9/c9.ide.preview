@@ -1,9 +1,3 @@
-/**
- * App or HTML previewer in Cloud9 IDE
- *
- * @copyright 2010, Ajax.org B.V.
- * @license GPLv3 <http://www.gnu.org/licenses/gpl.txt>
- */
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Editor", "editors", "util", "settings", "Menu", "ui", 
@@ -46,13 +40,13 @@ define(function(require, exports, module) {
         
         function load(){
             var parent = layout.findParent({ name: "preview" });
-            var button = new apf.button({
-                skin : "c9-toolbarbutton-glossy",
-                "class" : "preview",
-                tooltip : "Preview The Focussed Document",
-                caption : "Preview",
+            var button = new ui.button({
+                skin     : "c9-toolbarbutton-glossy",
+                "class"  : "preview",
+                tooltip  : "Preview The Focussed Document",
+                caption  : "Preview",
                 disabled : true,
-                onclick : function() {
+                onclick  : function() {
                     var tab = tabs.focussedTab;
                     if (tab && tab.editor.type === "preview")
                         return;
@@ -131,7 +125,7 @@ define(function(require, exports, module) {
             var css = util.replaceStaticPrefix(require("text!./style.css"));
             ui.insertCss(css, handle);
             
-            handleEmit("draw");
+            handleEmit("draw", null, true);
         }
         
         function registerPlugin(plugin, matcher){
@@ -159,23 +153,60 @@ define(function(require, exports, module) {
         }
         
         /**
+         * The preview handle, responsible for managing preview plugins. 
+         * This is the object you get when you request the preview
+         * service in your plugin.
          * 
+         * Example:
+         * 
+         *     define(function(require, exports, module) {
+         *         main.consumes = ["preview"];
+         *         main.provides = ["myplugin"];
+         *         return main;
+         *     
+         *         function main(options, imports, register) {
+         *             var preview = imports.preview;
+         *             
+         *             var previewer = preview.findPreviewer("preview.browser");
+         *         });
+         *     });
+         * 
+         * @class preview
+         * @extends Plugin
+         * @singleton
          */
         handle.freezePublicAPI({
+            /**
+             * The menu shown to select the previewer
+             * @property {Menu} previewMenu
+             */
             get previewMenu(){ return menu; },
             
             /**
+             * Adds a previewer to the list of known previewers.
              * 
+             * *N.B. The {@link Previewer} base class already calls this method.*
+             * 
+             * @param {Previewer} previewer  the previewer to register.
+             * @private
              */
             register : registerPlugin,
             
             /**
+             * Removes a previewer from the list of known previewers. 
              * 
+             * *N.B. The {@link Previewer} base class already calls this method.*
+             * 
+             * @param {Previewer} previewer  the previewer to unregister.
+             * @private
              */
             unregister : unregisterPlugin,
             
             /**
-             * 
+             * Retrieves a previewer based on a file path or id.
+             * @param {String} path  The path of the file that is to be previewed
+             * @param {String} id    The unique name of the previewer to retrieve
+             * @return {Previewer}
              */
             findPreviewer : findPreviewer,
         });
@@ -236,8 +267,8 @@ define(function(require, exports, module) {
                                 //             skin    : "btn-preview-nav",
                                 //             skinset : "previewskin",
                                 //             width   : 30,
-                                //             class   : "popup",
-                                //             onclick : function(e){ popup(); }
+                                //             class   : "popout",
+                                //             onclick : function(e){ popout(); }
                                 //         })
                                 //     ]
                                 // })
@@ -266,10 +297,11 @@ define(function(require, exports, module) {
             
             function reload(){
                 var session = currentSession;
-                if (session) session.reload();
+                if (session) 
+                    session.previewer.reload();
             }
             
-            function popup(){
+            function popout(){
                 
             }
             
@@ -294,12 +326,12 @@ define(function(require, exports, module) {
                     }
                         
                     // Enable the new previewer
-                    session.previewer = previewers[id].plugin;
-                    session.previewer.loadDocument(doc, plugin, state);
+                    var previewer = previewers[id].plugin;
+                    session.previewer = previewer;
                     
-                    session.activate();
-                    
-                    session.navigate({ url: session.path });
+                    previewer.loadDocument(doc, plugin, state);
+                    previewer.activateDocument(doc);
+                    previewer.navigate({ url: session.path });
                 }
             }
             
@@ -307,88 +339,43 @@ define(function(require, exports, module) {
             
             plugin.on("load", function(){
             });
-            
             plugin.on("documentLoad", function(e){
                 var doc     = e.doc;
                 var session = doc.getSession();
                 
-                function changeListener(){
-                    session.update({
-                        saved: session.previewTab
-                            .document.undoManager.isAtBookmark()
-                    });
-                };
-                function renameListener(e){
-                    session.navigate({ url: e.path });
-                }
-                
-                var emit = session.getEmitter();
-                session.update     = function(e){ emit("update", e); };
-                session.reload     = function(){ emit("reload"); };
-                session.activate   = function(){ emit("activate"); };
-                session.deactivate = function(){ emit("deactivate"); };
-                session.navigate   = function(e){ 
-                    if (session.previewTab) {
-                        var doc = session.previewTab.document;
-                        
-                        // Remove previous change listener
-                        doc.undoManager.off("change", changeListener);
-                        
-                        // Remove previous path listener
-                        doc.tab.off("path.set", renameListener);
-                    }
-                    
-                    if (!e) return; // For cleanup
-                    
-                    // Find new tab
-                    session.path        = e.url
-                    e.tab              =
-                    session.previewTab = tabs.findTab(session.path);
-                    
-                    // Set new change listener
-                    if (session.previewTab) {
-                        var doc = session.previewTab.document;
-                        
-                        // Listen to value changes
-                        doc.undoManager.on("change", changeListener);
-                        
-                        // Listen to path changes
-                        doc.tab.on("setPath", renameListener);
-                    }
-                    
-                    emit("navigate", e); 
-                };
-                
                 doc.tab.backgroundColor = "rgb(41, 41, 41)";
                 doc.tab.className.add("dark");
                 
-                session.path = session.path || e.state.path;
+                // session.path = session.path || e.state.path;
+                session.initPath = session.path || e.state.path;
                 
-                session.previewer = findPreviewer(session.path, (e.state || 0).previewer);
+                session.previewer = findPreviewer(session.initPath, (e.state || 0).previewer);
                 session.previewer.loadDocument(doc, plugin);
-                
-                session.navigate({ url: session.path });
                 
                 tabs.on("open", function(e){
                     if (!session.previewTab && e.options.path == session.path) {
                         session.previewTab = e.tab;
-                        session.navigate({ url : session.path, tab: e.tab });
+                        session.previewer.navigate({ url : session.path, tab: e.tab });
                     }
                 }, session);
             });
             plugin.on("documentActivate", function(e){
-                if (currentDocument)
-                    currentDocument.getSession().deactivate();
-                    
                 currentDocument = e.doc;
                 currentSession  = e.doc.getSession();
                 
-                currentSession.activate();
+                var previewer = currentSession.previewer;
+                previewer.activateDocument(currentDocument);
+                
+                // @todo shouldn't previewTab be set here?
+                if (currentSession.initPath) {
+                    previewer.navigate({ url: currentSession.initPath });
+                    delete currentSession.initPath;
+                }
             });
             plugin.on("documentUnload", function(e){
                 var session = e.doc.getSession();
                 session.previewer.unloadDocument(e.doc);
-                session.navigate(); // Remove the listener
+                session.previewer.navigate(); // Remove the listener
             });
             plugin.on("getState", function(e){
                 var state = e.state;
@@ -397,7 +384,7 @@ define(function(require, exports, module) {
                 state.path      = session.path;
                 state.previewer = session.previewer.name;
                 
-                session.getEmitter()("state.get", e);
+                session.previewer.getState(e.doc, state);
             });
             plugin.on("setState", function(e){
                 var state   = e.state;
@@ -406,15 +393,15 @@ define(function(require, exports, module) {
                 session.path      = state.path;
                 // session.previewer = state.previewer;
                 
-                session.getEmitter()("state.set", e);
+                session.previewer.setState(e.doc, state);
             });
             plugin.on("clear", function(){
             });
             plugin.on("focus", function(e){
-                // currentSession.previewer.focus(e);
+                currentSession.previewer.focus(e);
             });
             plugin.on("blur", function(e){
-                // currentSession.previewer.blur(e);
+                currentSession.previewer.blur(e);
             });
             plugin.on("enable", function(){
             });
@@ -427,26 +414,35 @@ define(function(require, exports, module) {
             /***** Register and define API *****/
             
             /**
-             * Read Only Image Editor
+             * Preview pane for previewing files and content in a Cloud9 tab.
+             * 
+             * There are a few default previewers (i.e. 
+             * {@link previewer.browser browser}, {@link previewer.raw raw},
+             * {@link previewer.markdown markdown}).
+             * 
+             * It's easy to make additional previewers. See {@link Previewer}.
              **/
             plugin.freezePublicAPI({
                 /**
-                 * HTML Element to attach your custom previewer to
+                 * The HTML element to attach your custom previewer to.
+                 * @property {HTMLElement} container
                  */
                 get container(){ return container; },
                 
                 /**
-                 * 
+                 * Trigger a reload of the content displayed in the previewer.
                  */
                 reload : reload,
                 
                 /**
-                 * 
+                 * Pop the previewer out of the Cloud9 tab into a new window.
+                 * @ignore Not implemented
                  */
-                popup   : popup,
+                popout : popout,
                 
                 /**
-                 * 
+                 * Change to a different previewer for the displayed content.
+                 * @param {String} name  The name of the previewer to show (e.g. "previewer.browser").
                  */
                 setPreviewer : setPreviewer
             });
