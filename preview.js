@@ -453,7 +453,21 @@ define(function(require, exports, module) {
                  * Change to a different previewer for the displayed content.
                  * @param {String} name  The name of the previewer to show (e.g. "previewer.browser").
                  */
-                setPreviewer : setPreviewer
+                setPreviewer : setPreviewer,
+                
+                /**
+                 * Set the value of the location bar of the preview pane.
+                 * @param {String} value  The value of the location bar.
+                 */
+                setLocation : setLocation,
+                
+                /**
+                 * Set the icon and label of the button in the preview bar that
+                 * allows users to choose which previewer to use.
+                 * @param {String} caption  The caption of the button.
+                 * @param {String} icon     The icon of the button.
+                 */
+                setButtonStyle : setButtonStyle
             });
             
             plugin.load("preview" + counter++);
