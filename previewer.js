@@ -73,11 +73,19 @@ define(function(require, module, exports) {
                 emit("documentActivate", { doc: currentDocument });
             }
             
-            function update(e){ emit("update", e); };
-            function reload(){ emit("reload"); };
+            function update(e){ 
+                if (e.doc == currentDocument) {
+                    e.previewDocument = e.doc.getSession().previewTab.document;
+                    emit("update", e);
+                }
+            }
+            
+            function reload(){ 
+                emit("reload"); 
+            }
             
             function navigate(e){ 
-                var session = currentSession;
+                var session = e.doc ? e.doc.getSession() : currentSession;
                 var doc;
                 
                 // if (session.path == e.url)
@@ -100,12 +108,13 @@ define(function(require, module, exports) {
                 session.previewTab     = e.tab = tabs.findTab(session.path);
                 session.changeListener = function(){
                     update({
-                        saved: session.previewTab
+                        doc   : doc,
+                        saved : session.previewTab
                             .document.undoManager.isAtBookmark()
                     });
                 };
                 session.renameListener = function(e){
-                    navigate({ url: e.path });
+                    navigate({ url: e.path, doc: doc });
                 }
                 
                 // Set new change listener
@@ -119,7 +128,8 @@ define(function(require, module, exports) {
                     doc.tab.on("setPath", session.renameListener);
                 }
                 
-                emit("navigate", e); 
+                if (session == currentSession)
+                    emit("navigate", e); 
             };
             
             function getState(doc, state){
@@ -154,37 +164,70 @@ define(function(require, module, exports) {
             plugin.freezePublicAPI.baseclass();
             
             /**
-             * Previewer base class for the {@link Preview Cloud9 preview pane}.
+             * Previewer base class for the {@link Preview preview pane}.
              * 
-             * A debug panel is a section of the debugger that allows users to
-             * interact with the debugger. Debuggers in Cloud9 are pluggable
-             * and there are many different debuggers available as a 
-             * {@link debugger.implementation debugger implementation}.
+             * A previewer registers for certain type of content, based on a
+             * filename or path. The content can be displayed through any means
+             * possible in the browser. Many previewers create an iframe in which
+             * they render content. Others just update a div with some generated
+             * result.
              * 
-             * The debugger UI is re-used for all these debugger 
-             * implementations. Panels can decide for which debugger they should
-             * be shown:
+             * Creating a previewer is very much like creating an editor. There
+             * is a set of events that can be hooked to implement behavior.
              * 
-             *     var debug = imports.debugger;
-             *     
-             *     debug.on("attach", function(e){
-             *         if (e.implementation.type == "html5")
-             *             plugin.show();
-             *         else
-             *             plugin.hide();
-             *     });
+             * The event flow of a previewer plugin is as follows:
+             * 
+             * * {@link #documentLoad} - *A source file is previewed*
+             * * {@link #documentActivate} - *A source file is now active in the previewer*
+             * * {@link #update} - *The contents of the source file is updated*
+             * * {@link #documentDeactivate} - *Another document is loaded as the active document in the previewer*
+             * * {@link #documentUnload} - *The tab for this preview is closed*
+             * 
+             * This is in addition to the event flow of the {@link Plugin} base class.
+             * 
+             * #### User Actions:
+             * 
+             * * {@link #reload} - *Refresh the contents*
+             * * {@link #navigate} - *Load a different file to preview in the same session*
+             * * {@link #focus} - *The previewer got focus*
+             * * {@link #blur} - *The previewer lost focus*
              * 
              * Implementing your own debug panel takes a new Previewer() object 
              * rather than a new Plugin() object. Here's a short example:
              * 
              *     var plugin = new Previewer("(Company) Name", main.consumes, {
-             *         caption  : "Cool Caption"
+             *         caption  : "HTML",
+             *         index    : 10,
+             *         divider  : true,
+             *         selector : function(path){
+             *             return path.match(/(?:\.html|\.htm|\.xhtml)$|^https?\:\/\//);
+             *         }
              *     });
-             *     var emit = plugin.getEmitter();
              * 
-             *     plugin.on("draw", function(e){
-             *         e.html.innerHTML = "Hello World!";
+             *     plugin.on("documentLoad", function(e){
+             *         var session = e.doc.getSession();
+             *         if (!session.iframe)
+             *             session.iframe = createIframe();
+             *         e.editor.container.appendChild(session.iframe);
              *     });
+             *     
+             *     plugin.on("documentActivate", function(e){
+             *         var session = e.doc.getSession();
+             *         session.iframe.style.display = "block";
+             *     });
+             *     
+             *     plugin.on("documentDeactivate", function(e){
+             *         var session = e.doc.getSession();
+             *         session.iframe.style.display = "none";
+             *     });
+             *     
+             *     plugin.on("update", function(e){
+             *         var value   = e.previewDocument.value;
+             *         var session = e.doc.getSession();
+             *         updateContent(session.iframe, value);
+             *     });
+             * 
+             *     // etc...
              *     
              *     plugin.freezePublicAPI({
              *     });
@@ -195,21 +238,47 @@ define(function(require, module, exports) {
             /**
              * @constructor
              * Creates a new Previewer instance.
-             * @param {String}   developer   The name of the developer of the plugin
-             * @param {String[]} deps        A list of dependencies for this 
+             * @param {String}         developer          The name of the developer of the plugin
+             * @param {String[]}       deps               A list of dependencies for this 
              *   plugin. In most cases it's a reference to `main.consumes`.
-             * @param {Object}   options     The options for the debug panel
-             * @param {String}   options.caption  The caption of the frame.
+             * @param {Object}         options            The options for the previewer.
+             * @param {String}         options.caption    The caption of the menu item.
+             * @param {Boolean/Menu}   [options.submenu]  Specifies whether to create a submenu. If a menu is specified, it will be used as submenu instead.
+             * @param {Divider}        [options.divider]  Specifies whether to create a divider below the menu item.
+             * @param {Number}         [options.index]    The position of the menu item in the menu
+             * @param {Function}       [options.selector] Return true if your previewer can handle the content.
+             * @param {String}         [options.path]     The path of the file that is to be previewed.
+             * @param {Function}       [options.onclick]  A function that is called when the user clicks on the menu item.
              */
             plugin.freezePublicAPI({
                 /**
-                 * 
+                 * @property {Menu} menu The sub menu for the previewer menu item (if any).
+                 * @readonly
                  */
                 get menu(){ return menu; },
+                /**
+                 * @property {MenuItem} item The menu item for the preview menu.
+                 * @readonly
+                 */
                 get item(){ return item; },
+                /**
+                 * @property {Divider} divider The divider for the previewer menu (if any).
+                 * @readonly
+                 */
                 get divider(){ return div; },
                 
+                /**
+                 * @property {Document} activeDocument The document that is currently 
+                 *   active (visible) in this previewer.
+                 * @readonly
+                 */
                 get activeDocument(){ return currentDocument; },
+                /**
+                 * @property {Session} activeSession The session that belongs to the active 
+                 *   document. This can also be retrieved using 
+                 *   `previewer.activeDocument.getSession()`.
+                 * @readonly
+                 */
                 get activeSession(){ return currentSession; },
                 
                 _events : [
@@ -219,6 +288,13 @@ define(function(require, module, exports) {
                      * instance of the same previewer (in a split view situation). Often you
                      * want to keep the session information partially in tact when this
                      * happens.
+                     * 
+                     * *N.B.: The document that is loaded is the document that 
+                     * belongs to the preview editor. It is *not* the document 
+                     * that is going to be previewed. The document to preview
+                     * is accessible via the session: 
+                     * `doc.getSession().previewTab.document`.*
+                     * 
                      * @event documentLoad 
                      * @param {Object}   e
                      * @param {Document} e.doc     the document that is loaded into the previewer
@@ -231,6 +307,12 @@ define(function(require, module, exports) {
                      * This event is called every time a tab becomes the active tab of
                      * a pane. Use it to show / hide whatever is necessary.
                      * 
+                     * *N.B.: The document that is activated is the document that 
+                     * belongs to the preview editor. It is *not* the document 
+                     * that is going to be previewed. The document to preview
+                     * is accessible via the session: 
+                     * `doc.getSession().previewTab.document`.*
+                     * 
                      * @event documentActivate
                      * @param {Object}   e
                      * @param {Document} e.doc  the document that is activate
@@ -241,7 +323,13 @@ define(function(require, module, exports) {
                      * This event is called every time a tab stops being the active tab of
                      * a pane. Use it to show / hide whatever is necessary.
                      * 
-                     * @event documentActivate
+                     * *N.B.: The document that is deactivated is the document that 
+                     * belongs to the preview editor. It is *not* the document 
+                     * that is going to be previewed. The document to preview
+                     * is accessible via the session: 
+                     * `doc.getSession().previewTab.document`.*
+                     * 
+                     * @event documentDeactivate
                      * @param {Object}   e
                      * @param {Document} e.doc  the document that is activate
                      */
@@ -250,6 +338,13 @@ define(function(require, module, exports) {
                      * Fires when a document is unloaded from the previewer.
                      * This event is also fired when this document is attached to another
                      * instance of the previewer (in a split view situation).
+                     * 
+                     * *N.B.: The document that is unloaded is the document that 
+                     * belongs to the preview editor. It is *not* the document 
+                     * that is going to be previewed. The document to preview
+                     * is accessible via the session: 
+                     * `doc.getSession().previewTab.document`.*
+                     * 
                      * @event documentUnload
                      * @param {Object}   e
                      * @param {Document} e.doc  the document that was loaded into the previewer
@@ -292,10 +387,28 @@ define(function(require, module, exports) {
                      * @event blur
                      */
                     "blur",
-                    
+                    /**
+                     * Fires when the document that is being previewed is updated.
+                     * @event update
+                     * @param {Object}   e
+                     * @param {Document} e.doc              The document of the previewer.
+                     * @param {Document} e.previewDocument  The document of the file that is being previewed, if any.
+                     * @param {Boolean}  e.saved            Whether the content has been saved to disk.
+                     */
                     "update",
+                    /**
+                     * Fires when the user reloads the contents.
+                     * @event reload
+                     */
                     "reload",
-                    "navigate",
+                    /**
+                     * Fires when the user requests a different location to be previewed.
+                     * @event navigate
+                     * @param {Object}   e
+                     * @param {Document} e.doc The document of the previewer.
+                     * @param {String}   e.url The url or path that the user entered in the location box.
+                     */
+                    "navigate"
                 ],
                     
                 /**
@@ -321,32 +434,27 @@ define(function(require, module, exports) {
                 blur : blur,
                 
                 /**
-                 * 
+                 * Sets the document as the active document.
+                 * @param {Document} doc the document to activate
                  */
                 activateDocument : activateDocument,
                 
                 /**
-                 * 
-                 */
-                update : update,
-                
-                /**
-                 * 
+                 * Reload the preview of the active document.
                  */
                 reload : reload,
                 
                 /**
-                 * 
+                 * Retrieves the state of a previewer
+                 * @param {Document} doc the document for which to return the state
+                 * @return {Object}
                  */
-                navigate : navigate,
+                getState : getState, 
                 
                 /**
-                 * 
-                 */
-                getState : getState,
-                
-                /**
-                 * 
+                 * Sets the state of this previewer
+                 * @param {Document} doc the document for which to set the state
+                 * @param {Object} state the state of the document for this editor
                  */
                 setState : setState
             });

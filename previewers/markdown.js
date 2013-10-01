@@ -32,33 +32,35 @@ define(function(require, exports, module) {
             var tab     = doc.tab;
             var editor  = e.editor;
             
-            var iframe = document.createElement("iframe");
-            iframe.style.width    = "100%";
-            iframe.style.height   = "100%";
-            iframe.style.border   = 0;
-            iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
+            if (!session.iframe) {
+                var iframe = document.createElement("iframe");
+                iframe.style.width    = "100%";
+                iframe.style.height   = "100%";
+                iframe.style.border   = 0;
+                iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
+                
+                window.addEventListener("message", function(e){
+                    // if (event.origin !== "http://example.org:8080")
+                    //     return;
+                    
+                    if (e.data.message == "stream.document") {
+                        session.source = e.source;
+                        session.source.postMessage({
+                            type    : "document",
+                            content : session.previewTab.document.value
+                        }, location.origin);
+                        
+                        tab.className.remove("loading");
+                    }
+                }, false);
+                session.iframe = iframe;
+                
+                // Load the markup renderer
+                iframe.src = HTMLURL;
+            }
             
             session.editor = editor;
-            session.iframe = iframe;
             editor.container.appendChild(session.iframe);
-            
-            window.addEventListener("message", function(e){
-                // if (event.origin !== "http://example.org:8080")
-                //     return;
-                
-                if (e.data.message == "stream.document") {
-                    session.source = e.source;
-                    session.source.postMessage({
-                        type    : "document",
-                        content : session.previewTab.document.value
-                    }, location.origin);
-                    
-                    tab.className.remove("loading");
-                }
-            }, false);
-            
-            // Load the markup renderer
-            iframe.src = HTMLURL;
         });
         plugin.on("documentUnload", function(e){
             var doc     = e.doc;
@@ -75,9 +77,8 @@ define(function(require, exports, module) {
             var session = e.doc.getSession();
             
             session.iframe.style.display = "block";
-            session.editor.getElement("txtPreview").setValue(session.path);
-            session.editor.getElement("btnMode").setCaption("Markdown");
-            session.editor.getElement("btnMode").setIcon("page_white.png");
+            session.editor.setLocation(session.path);
+            session.editor.setButtonStyle("Markdown", "page_white.png");
         });
         plugin.on("documentDeactivate", function(e){
             var session = e.doc.getSession();
@@ -92,7 +93,7 @@ define(function(require, exports, module) {
             
             tab.title    = 
             tab.tooltip  = "[M] " + e.url;
-            editor.getElement("txtPreview").setValue(e.url);
+            editor.setLocation(e.url);
             
             iframe.src = iframe.src;
         });
@@ -102,7 +103,7 @@ define(function(require, exports, module) {
     
             session.source.postMessage({
                 type    : "document",
-                content : session.previewTab.document.value
+                content : e.previewDocument.value
             }, location.origin);
         });
         plugin.on("reload", function(){
@@ -123,11 +124,7 @@ define(function(require, exports, module) {
         /***** Register and define API *****/
         
         /**
-         * Draws the file tree
-         * @event afterfilesave Fires after a file is saved
-         * @param {Object} e
-         *     node     {XMLNode} description
-         *     oldpath  {String} description
+         * Previewer for markdown content.
          **/
         plugin.freezePublicAPI({
         });

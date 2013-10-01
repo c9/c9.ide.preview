@@ -38,34 +38,36 @@ define(function(require, exports, module) {
             var tab     = doc.tab;
             var editor  = e.editor;
             
-            var iframe = document.createElement("iframe");
-            iframe.style.width    = "100%";
-            iframe.style.height   = "100%";
-            iframe.style.border   = 0;
-            iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
-            
-            iframe.addEventListener("load", function(){
-                if (!iframe.src) return;
+            if (!session.iframe) {
+                var iframe = document.createElement("iframe");
+                iframe.style.width    = "100%";
+                iframe.style.height   = "100%";
+                iframe.style.border   = 0;
+                iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
                 
-                var path = calcRootedPath(iframe.src);
-                
-                tab.title   = 
-                tab.tooltip = "[B] " + path;
-                session.lastSrc  = iframe.src;
-                
-                editor.getElement("txtPreview").setValue(path);
-                tab.className.remove("loading");
-                
-                try{ iframe.contentWindow.document } 
-                catch(e) { 
-                    layout.showError("Could not access: " + session.path 
-                        + ". Reason: " + e.message); 
-                    return;
-                }
-            });
+                iframe.addEventListener("load", function(){
+                    if (!iframe.src) return;
+                    
+                    var path = calcRootedPath(iframe.src);
+                    
+                    tab.title   = 
+                    tab.tooltip = "[B] " + path;
+                    session.lastSrc  = iframe.src;
+                    
+                    editor.setLocation(path);
+                    tab.className.remove("loading");
+                    
+                    try{ iframe.contentWindow.document } 
+                    catch(e) { 
+                        layout.showError("Could not access: " + session.path 
+                            + ". Reason: " + e.message); 
+                        return;
+                    }
+                });
+                session.iframe = iframe;
+            }
             
             session.editor = editor;
-            session.iframe = iframe;
             editor.container.appendChild(session.iframe);
         });
         plugin.on("documentUnload", function(e){
@@ -80,9 +82,8 @@ define(function(require, exports, module) {
             var path = calcRootedPath(session.iframe.src);
             
             session.iframe.style.display = "block";
-            session.editor.getElement("txtPreview").setValue(path);
-            session.editor.getElement("btnMode").setCaption("Browser");
-            session.editor.getElement("btnMode").setIcon("page_white.png");
+            session.editor.setLocation(path);
+            session.editor.setButtonStyle("Browser", "page_white.png");
         });
         plugin.on("documentDeactivate", function(e){
             var session = e.doc.getSession();
@@ -101,7 +102,7 @@ define(function(require, exports, module) {
             var path = calcRootedPath(url);
             tab.title   = 
             tab.tooltip = "[B] " + path;
-            plugin.activeSession.editor.getElement("txtPreview").setValue(path);
+            plugin.activeSession.editor.setLocation(path);
         });
         plugin.on("update", function(e){
             var iframe = plugin.activeSession.iframe;
@@ -126,11 +127,7 @@ define(function(require, exports, module) {
         /***** Register and define API *****/
         
         /**
-         * Draws the file tree
-         * @event afterfilesave Fires after a file is saved
-         * @param {Object} e
-         *     node     {XMLNode} description
-         *     oldpath  {String} description
+         * Previewer for content that the browser can display natively.
          **/
         plugin.freezePublicAPI({
             

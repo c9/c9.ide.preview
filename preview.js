@@ -335,6 +335,15 @@ define(function(require, exports, module) {
                 }
             }
             
+            function setLocation(value){
+                txtPreview.setValue(value);
+            }
+            
+            function setButtonStyle(caption, icon) {
+                btnMode.setCaption(caption);
+                btnMode.setIcon(icon);
+            }
+            
             /***** Lifecycle *****/
             
             plugin.on("load", function(){
@@ -417,8 +426,8 @@ define(function(require, exports, module) {
              * Preview pane for previewing files and content in a Cloud9 tab.
              * 
              * There are a few default previewers (i.e. 
-             * {@link previewer.browser browser}, {@link previewer.raw raw},
-             * {@link previewer.markdown markdown}).
+             * {@link preview.browser browser}, {@link preview.raw raw},
+             * {@link preview.markdown markdown}).
              * 
              * It's easy to make additional previewers. See {@link Previewer}.
              **/

@@ -84,9 +84,8 @@ define(function(require, exports, module) {
             var session = e.doc.getSession();
             
             session.pre.style.display = "block";
-            session.editor.getElement("txtPreview").setValue(session.path);
-            session.editor.getElement("btnMode").setCaption("Raw Content (UTF-8)");
-            session.editor.getElement("btnMode").setIcon("page_white.png");
+            session.editor.setLocation(session.path);
+            session.editor.setButtonStyle("Raw Content (UTF-8)", "page_white.png");
         });
         plugin.on("documentDeactivate", function(e){
             var session = e.doc.getSession();
@@ -98,7 +97,7 @@ define(function(require, exports, module) {
             
             tab.title    = 
             tab.tooltip  = "[R] " + e.url;
-            session.editor.getElement("txtPreview").setValue(e.url);
+            session.editor.setLocation(e.url);
             
             update();
         });
@@ -117,11 +116,7 @@ define(function(require, exports, module) {
         /***** Register and define API *****/
         
         /**
-         * Draws the file tree
-         * @event afterfilesave Fires after a file is saved
-         * @param {Object} e
-         *     node     {XMLNode} description
-         *     oldpath  {String} description
+         * Previewer for UTF-8 content.
          **/
         plugin.freezePublicAPI({
         });
