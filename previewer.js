@@ -177,20 +177,20 @@ define(function(require, module, exports) {
              * 
              * The event flow of a previewer plugin is as follows:
              * 
-             * * {@link #documentLoad} - *A source file is previewed*
-             * * {@link #documentActivate} - *A source file is now active in the previewer*
-             * * {@link #update} - *The contents of the source file is updated*
-             * * {@link #documentDeactivate} - *Another document is loaded as the active document in the previewer*
-             * * {@link #documentUnload} - *The tab for this preview is closed*
+             * * {@link #event-documentLoad} - *A source file is previewed*
+             * * {@link #event-documentActivate} - *A source file is now active in the previewer*
+             * * {@link #event-update} - *The contents of the source file is updated*
+             * * {@link #event-documentDeactivate} - *Another document is loaded as the active document in the previewer*
+             * * {@link #event-documentUnload} - *The tab for this preview is closed*
              * 
              * This is in addition to the event flow of the {@link Plugin} base class.
              * 
              * #### User Actions:
              * 
-             * * {@link #reload} - *Refresh the contents*
-             * * {@link #navigate} - *Load a different file to preview in the same session*
-             * * {@link #focus} - *The previewer got focus*
-             * * {@link #blur} - *The previewer lost focus*
+             * * {@link #event-reload} - *Refresh the contents*
+             * * {@link #event-navigate} - *Load a different file to preview in the same session*
+             * * {@link #event-focus} - *The previewer got focus*
+             * * {@link #event-blur} - *The previewer lost focus*
              * 
              * Implementing your own debug panel takes a new Previewer() object 
              * rather than a new Plugin() object. Here's a short example:
@@ -368,7 +368,7 @@ define(function(require, module, exports) {
                     "setState",
                     /** 
                      * Fires when the previewer gets the focus. See also 
-                     * {@link tabs#focusTab}, {@link tabs#focussedTab}
+                     * {@link tabManager#focusTab}, {@link tabManager#focussedTab}
                      * @event focus
                      * @param {Object}  e
                      * @param {Boolean} e.regain whether the focus is regained. 
