@@ -445,6 +445,11 @@ define(function(require, module, exports) {
                 reload : reload,
                 
                 /**
+                 * @ignore
+                 */
+                navigate : navigate,
+                
+                /**
                  * Retrieves the state of a previewer
                  * @param {Document} doc the document for which to return the state
                  * @return {Object}
