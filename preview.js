@@ -43,7 +43,7 @@ define(function(require, exports, module) {
             var button = new ui.button({
                 skin     : "c9-toolbarbutton-glossy",
                 "class"  : "preview",
-                tooltip  : "Preview The Focussed Document",
+                tooltip  : "Preview The Focused Document",
                 caption  : "Preview",
                 disabled : true,
                 onclick  : function() {
