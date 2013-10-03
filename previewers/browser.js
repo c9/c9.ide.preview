@@ -1,11 +1,12 @@
 define(function(require, exports, module) {
-    main.consumes = ["Previewer", "layout"];
+    main.consumes = ["Previewer", "layout", "vfs"];
     main.provides = ["preview.browser"];
     return main;
 
     function main(options, imports, register) {
-        var Previewer = imports.Previewer;
-        var layout    = imports.layout;
+        var Previewer   = imports.Previewer;
+        var layout      = imports.layout;
+        var vfs         = imports.vfs;
         
         /***** Initialization *****/
         
@@ -18,7 +19,7 @@ define(function(require, exports, module) {
             }
         });
         
-        var BASEPATH = location.protocol + "//" + location.host + "/workspace";
+        var BASEPATH = vfs.previewUrl;
         
         /***** Methods *****/
         
