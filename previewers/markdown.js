@@ -17,7 +17,7 @@ define(function(require, exports, module) {
         });
         
         var HTMLURL = options.htmlurl || location.protocol + "//" 
-            + location.host + "/static/plugins/c9.ide.preview/previewers/markdown.html"
+            + location.host + "/static/plugins/c9.ide.preview/previewers/markdown.html";
         
         /***** Methods *****/
         
