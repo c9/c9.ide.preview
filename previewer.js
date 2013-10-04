@@ -85,7 +85,7 @@ define(function(require, module, exports) {
             }
             
             function navigate(e){ 
-                var session = e.doc ? e.doc.getSession() : currentSession;
+                var session = e && e.doc ? e.doc.getSession() : currentSession;
                 var doc;
                 
                 // if (session.path == e.url)
