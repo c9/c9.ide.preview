@@ -287,7 +287,7 @@ define(function(require, exports, module) {
                 
                 txtPreview.$input.onkeydown = function(e){
                     if (e.keyCode == 13) {
-                        currentDocument.getSession().navigate({ url: this.value });
+                        currentDocument.getSession().previewer.navigate({ url: this.value });
                         txtPreview.blur();
                     }
                 }
