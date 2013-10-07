@@ -39,34 +39,32 @@ define(function(require, exports, module) {
             var tab     = doc.tab;
             var editor  = e.editor;
             
-            if (!session.iframe) {
-                var iframe = document.createElement("iframe");
-                iframe.style.width    = "100%";
-                iframe.style.height   = "100%";
-                iframe.style.border   = 0;
-                iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
+            var iframe = document.createElement("iframe");
+            iframe.style.width    = "100%";
+            iframe.style.height   = "100%";
+            iframe.style.border   = 0;
+            iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
+            
+            iframe.addEventListener("load", function(){
+                if (!iframe.src) return;
                 
-                iframe.addEventListener("load", function(){
-                    if (!iframe.src) return;
-                    
-                    var path = calcRootedPath(iframe.src);
-                    
-                    tab.title   = 
-                    tab.tooltip = "[B] " + path;
-                    session.lastSrc  = iframe.src;
-                    
-                    editor.setLocation(path);
-                    tab.className.remove("loading");
-                    
-                    try{ iframe.contentWindow.document } 
-                    catch(e) { 
-                        layout.showError("Could not access: " + session.path 
-                            + ". Reason: " + e.message); 
-                        return;
-                    }
-                });
-                session.iframe = iframe;
-            }
+                var path = calcRootedPath(iframe.src);
+                
+                tab.title   = 
+                tab.tooltip = "[B] " + path;
+                session.lastSrc  = iframe.src;
+                
+                editor.setLocation(path);
+                tab.className.remove("loading");
+                
+                try{ iframe.contentWindow.document } 
+                catch(e) { 
+                    layout.showError("Could not access: " + session.path 
+                        + ". Reason: " + e.message); 
+                    return;
+                }
+            });
+            session.iframe = iframe;
             
             session.editor = editor;
             editor.container.appendChild(session.iframe);

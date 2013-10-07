@@ -369,6 +369,9 @@ define(function(require, exports, module) {
                 }, session);
             });
             plugin.on("documentActivate", function(e){
+                if (currentDocument)
+                    currentSession.previewer.deactivateDocument(currentDocument);
+                
                 currentDocument = e.doc;
                 currentSession  = e.doc.getSession();
                 
@@ -383,8 +386,13 @@ define(function(require, exports, module) {
             });
             plugin.on("documentUnload", function(e){
                 var session = e.doc.getSession();
+                session.previewer.navigate(e.doc, true); // Remove the listener
                 session.previewer.unloadDocument(e.doc);
-                session.previewer.navigate(); // Remove the listener
+                
+                if (session == currentSession) {
+                    currentDocument = null;
+                    currentSession  = null;
+                }
             });
             plugin.on("getState", function(e){
                 var state = e.state;
@@ -407,10 +415,12 @@ define(function(require, exports, module) {
             plugin.on("clear", function(){
             });
             plugin.on("focus", function(e){
-                currentSession.previewer.focus(e);
+                if (currentSession)
+                    currentSession.previewer.focus(e);
             });
             plugin.on("blur", function(e){
-                currentSession.previewer.blur(e);
+                if (currentSession)
+                    currentSession.previewer.blur(e);
             });
             plugin.on("enable", function(){
             });

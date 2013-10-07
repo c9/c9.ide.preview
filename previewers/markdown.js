@@ -32,32 +32,30 @@ define(function(require, exports, module) {
             var tab     = doc.tab;
             var editor  = e.editor;
             
-            if (!session.iframe) {
-                var iframe = document.createElement("iframe");
-                iframe.style.width    = "100%";
-                iframe.style.height   = "100%";
-                iframe.style.border   = 0;
-                iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
+            var iframe = document.createElement("iframe");
+            iframe.style.width    = "100%";
+            iframe.style.height   = "100%";
+            iframe.style.border   = 0;
+            iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
+            
+            window.addEventListener("message", function(e){
+                // if (event.origin !== "http://example.org:8080")
+                //     return;
                 
-                window.addEventListener("message", function(e){
-                    // if (event.origin !== "http://example.org:8080")
-                    //     return;
+                if (e.data.message == "stream.document") {
+                    session.source = e.source;
+                    session.source.postMessage({
+                        type    : "document",
+                        content : session.previewTab.document.value
+                    }, location.origin);
                     
-                    if (e.data.message == "stream.document") {
-                        session.source = e.source;
-                        session.source.postMessage({
-                            type    : "document",
-                            content : session.previewTab.document.value
-                        }, location.origin);
-                        
-                        tab.className.remove("loading");
-                    }
-                }, false);
-                session.iframe = iframe;
-                
-                // Load the markup renderer
-                iframe.src = HTMLURL;
-            }
+                    tab.className.remove("loading");
+                }
+            }, false);
+            session.iframe = iframe;
+            
+            // Load the markup renderer
+            iframe.src = HTMLURL;
             
             session.editor = editor;
             editor.container.appendChild(session.iframe);

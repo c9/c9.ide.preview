@@ -64,18 +64,22 @@ define(function(require, module, exports) {
             }
             
             function activateDocument(doc){
-                if (currentDocument)
-                    emit("documentDeactivate", { doc: currentDocument });
-                
                 currentDocument = doc;
                 currentSession  = doc.getSession();
                 
                 emit("documentActivate", { doc: currentDocument });
             }
             
+            function deactivateDocument(doc){
+                currentDocument = null;
+                currentSession  = null;
+                
+                emit("documentDeactivate", { doc: doc });
+            }
+            
             function update(e){ 
-                if (e.doc == currentDocument) {
-                    e.previewDocument = e.doc.getSession().previewTab.document;
+                if (e.doc == currentDocument.getSession().previewTab.document) {
+                    e.previewDocument = e.doc;
                     emit("update", e);
                 }
             }
@@ -84,14 +88,11 @@ define(function(require, module, exports) {
                 emit("reload"); 
             }
             
-            function navigate(e){ 
+            function navigate(e, remove){ 
                 var session = e && e.doc ? e.doc.getSession() : currentSession;
                 var doc;
                 
-                // if (session.path == e.url)
-                //     return;
-                
-                if (session.previewTab) {
+                if (session && session.previewTab) {
                     doc = session.previewTab.document;
                     
                     // Remove previous change listener
@@ -101,7 +102,7 @@ define(function(require, module, exports) {
                     doc.tab.off("path.set", session.renameListener);
                 }
                 
-                if (!e) return; // For cleanup
+                if (remove) return; // For cleanup
                 
                 // Find new tab
                 session.path           = e.url;
@@ -438,6 +439,12 @@ define(function(require, module, exports) {
                  * @param {Document} doc the document to activate
                  */
                 activateDocument : activateDocument,
+                
+                /**
+                 * Clears the document as the active document.
+                 * @param {Document} doc the document to deactivate
+                 */
+                deactivateDocument : deactivateDocument,
                 
                 /**
                  * Reload the preview of the active document.
