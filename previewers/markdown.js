@@ -3,6 +3,8 @@ define(function(require, exports, module) {
     main.provides = ["preview.markdown"];
     return main;
 
+    // @todo possible improvements: http://benweet.github.io/stackedit/#
+
     function main(options, imports, register) {
         var Previewer = imports.Previewer;
         
