@@ -47,7 +47,7 @@ define(function(require, exports, module) {
         function update(e){
             var session = plugin.activeSession;
             session.pre.innerHTML = session.previewTab
-                ? session.previewTab.document.value.replace(/</g, "&lt;")
+                ? (session.previewTab.document.value || "").replace(/</g, "&lt;")
                 : "[Please Open Document To Display In Raw Viewer]";
         }
         
