@@ -40,10 +40,10 @@ define(function(require, exports, module) {
         
         function load(){
             var parent = layout.findParent({ name: "preview" });
-            var button = new ui.button({
+            var button = !options.hideButton && new ui.button({
                 skin     : "c9-toolbarbutton-glossy",
                 "class"  : "preview",
-                tooltip  : "Preview The Focused Document",
+                tooltip  : "Preview the current document",
                 caption  : "Preview",
                 disabled : true,
                 onclick  : function() {
@@ -63,15 +63,15 @@ define(function(require, exports, module) {
                     }, function(){});
                 }
             });
-            ui.insertByIndex(parent, button, 10, handle);
+            button && ui.insertByIndex(parent, button, 10, handle);
             
             tabs.on("focus", function(e){
                 var disabled = typeof e.tab.path != "string";
-                button.setAttribute("disabled", disabled);
+                button && button.setAttribute("disabled", disabled);
             }, handle);
             
             tabs.on("tabDestroy", function(e){
-                if (e.last)
+                if (e.last && button)
                     button.disable();
             }, handle);
             
@@ -440,6 +440,19 @@ define(function(require, exports, module) {
              * {@link preview.markdown markdown}).
              * 
              * It's easy to make additional previewers. See {@link Previewer}.
+             * 
+             * Plugins can open a preview tab using the {@link tab} API:
+             * 
+             *     tabs.open({
+             *         name       : "mypreviewsite",
+             *         editorType : "preview",
+             *         active     : true,
+             *         document   : {
+             *             preview : {
+             *                 path: "https://mypreviewsite.com"
+             *             }
+             *         }
+             *     }, function(){});
              **/
             plugin.freezePublicAPI({
                 /**
