@@ -240,9 +240,9 @@ define(function(require, exports, module) {
                                     width   : "30",
                                     onclick : function(e){ reload(); }
                                 }),
-                                // new ui.hsplitbox({
-                                //     padding    : 0,
-                                //     childNodes : [
+                                new ui.hsplitbox({
+                                    padding    : 0,
+                                    childNodes : [
                                         new ui.bar({
                                             id         : "locationbar",
                                             "class"    : "locationbar",
@@ -263,15 +263,15 @@ define(function(require, exports, module) {
                                                 })
                                             ]
                                         }),
-                                //         new ui.button({
-                                //             skin    : "btn-preview-nav",
-                                //             skinset : "previewskin",
-                                //             width   : 30,
-                                //             class   : "popout",
-                                //             onclick : function(e){ popout(); }
-                                //         })
-                                //     ]
-                                // })
+                                        new ui.button({
+                                            skin    : "btn-preview-nav",
+                                            skinset : "previewskin",
+                                            width   : 30,
+                                            class   : "popout",
+                                            onclick : function(e){ popout(); }
+                                        })
+                                    ]
+                                })
                             ]
                         }),
                         new ui.bar({
@@ -443,16 +443,30 @@ define(function(require, exports, module) {
              * 
              * Plugins can open a preview tab using the {@link tab} API:
              * 
-             *     tabs.open({
-             *         name       : "mypreviewsite",
+             *     tabManager.open({
              *         editorType : "preview",
              *         active     : true,
              *         document   : {
              *             preview : {
-             *                 path: "https://mypreviewsite.com"
+             *                 path: "https://c9.io"
              *             }
              *         }
-             *     }, function(){});
+             *     }, function(err, tab) {});
+             * 
+             * Alternatively, use an urlView to open just the page without
+             * the browser controls and URL bar:
+             * 
+             *     tabManager.open({
+             *         value      : "http://www.c9.io",
+             *         editorType : "urlview",
+             *         active     : true,
+             *         document   : {
+             *             urlview : {
+             *                 backgroundColor : "#FF0000",
+             *                 dark            : true
+             *             }
+             *         }
+             *     }, function(err, tab) {})
              **/
             plugin.freezePublicAPI({
                 /**
