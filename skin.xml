@@ -95,6 +95,7 @@
             color: #333;
             font-family: Arial;
             -webkit-font-smoothing: auto;
+            -moz-osx-font-smoothing: auto;
             background: rgb(190, 190, 190);
             height: 20px;
             border-radius: 0 2px 2px 0;
