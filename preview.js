@@ -40,10 +40,10 @@ define(function(require, exports, module) {
         
         function load(){
             var parent = layout.findParent({ name: "preview" });
-            var button = new ui.button({
+            var button = !options.hideButton && new ui.button({
                 skin     : "c9-toolbarbutton-glossy",
                 "class"  : "preview",
-                tooltip  : "Preview The Focused Document",
+                tooltip  : "Preview the current document",
                 caption  : "Preview",
                 disabled : true,
                 onclick  : function() {
@@ -63,15 +63,15 @@ define(function(require, exports, module) {
                     }, function(){});
                 }
             });
-            ui.insertByIndex(parent, button, 10, handle);
+            button && ui.insertByIndex(parent, button, 10, handle);
             
             tabs.on("focus", function(e){
                 var disabled = typeof e.tab.path != "string";
-                button.setAttribute("disabled", disabled);
+                button && button.setAttribute("disabled", disabled);
             }, handle);
             
             tabs.on("tabDestroy", function(e){
-                if (e.last)
+                if (e.last && button)
                     button.disable();
             }, handle);
             
@@ -240,9 +240,9 @@ define(function(require, exports, module) {
                                     width   : "30",
                                     onclick : function(e){ reload(); }
                                 }),
-                                // new ui.hsplitbox({
-                                //     padding    : 0,
-                                //     childNodes : [
+                                new ui.hsplitbox({
+                                    padding    : 0,
+                                    childNodes : [
                                         new ui.bar({
                                             id         : "locationbar",
                                             "class"    : "locationbar",
@@ -263,15 +263,15 @@ define(function(require, exports, module) {
                                                 })
                                             ]
                                         }),
-                                //         new ui.button({
-                                //             skin    : "btn-preview-nav",
-                                //             skinset : "previewskin",
-                                //             width   : 30,
-                                //             class   : "popout",
-                                //             onclick : function(e){ popout(); }
-                                //         })
-                                //     ]
-                                // })
+                                        new ui.button({
+                                            skin    : "btn-preview-nav",
+                                            skinset : "previewskin",
+                                            width   : 30,
+                                            class   : "popout",
+                                            onclick : function(e){ popout(); }
+                                        })
+                                    ]
+                                })
                             ]
                         }),
                         new ui.bar({
@@ -440,6 +440,33 @@ define(function(require, exports, module) {
              * {@link preview.markdown markdown}).
              * 
              * It's easy to make additional previewers. See {@link Previewer}.
+             * 
+             * Plugins can open a preview tab using the {@link tab} API:
+             * 
+             *     tabManager.open({
+             *         editorType : "preview",
+             *         active     : true,
+             *         document   : {
+             *             preview : {
+             *                 path: "https://c9.io"
+             *             }
+             *         }
+             *     }, function(err, tab) {});
+             * 
+             * Alternatively, use an urlView to open just the page without
+             * the browser controls and URL bar:
+             * 
+             *     tabManager.open({
+             *         value      : "http://www.c9.io",
+             *         editorType : "urlview",
+             *         active     : true,
+             *         document   : {
+             *             urlview : {
+             *                 backgroundColor : "#FF0000",
+             *                 dark            : true
+             *             }
+             *         }
+             *     }, function(err, tab) {})
              **/
             plugin.freezePublicAPI({
                 /**
