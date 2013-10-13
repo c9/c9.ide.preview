@@ -48,12 +48,29 @@ define(function(require, exports, module) {
                 disabled : true,
                 onclick  : function() {
                     var tab = tabs.focussedTab;
-                    if (tab && tab.editor.type === "preview")
+                    if (tab && tab.editor.type === "preview" || !tab.path)
                         return;
                     
+                    // Find a good location to open preview side-by-side
+                    var pane;
+                    var otherPreview = search();
+                    if (otherPreview && tab.pane != otherPreview) {
+                        pane = otherPreview;
+                    }
+                    else {
+                        var nodes = tab.pane.group;
+                        if (!nodes)
+                            pane = tab.pane.hsplit(true);
+                        else {
+                            pane = nodes[nodes.indexOf(tab.pane) === 0 ? 1 : 0];
+                        }
+                    }
+                    
+                    // Open Preview
                     tabs.open({
                         name       : "preview-" + tab.path,
                         editorType : "preview",
+                        pane       : pane,
                         active     : true,
                         document   : {
                             preview : {
@@ -126,6 +143,19 @@ define(function(require, exports, module) {
             ui.insertCss(css, handle);
             
             handleEmit("draw", null, true);
+        }
+        
+        //Search through pages
+        function search(){
+            var pane;
+            tabs.getTabs().every(function(tab){
+                if (tab.editorType == "preview") {
+                    pane = tab.pane;
+                    return false;
+                }
+                return true;
+            });
+            return pane;
         }
         
         function registerPlugin(plugin, matcher){
