@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Editor", "editors", "util", "settings", "Menu", "ui", 
-        "preferences", "layout", "tabManager"
+        "preferences", "layout", "tabManager", "tree"
     ];
     main.provides = ["preview"];
     return main;
@@ -22,6 +22,7 @@ define(function(require, exports, module) {
         var util     = imports.util;
         var settings = imports.settings;
         var layout   = imports.layout;
+        var tree     = imports.tree;
         var tabs     = imports.tabManager;
         var prefs    = imports.preferences;
         var Menu     = imports.Menu;
@@ -67,17 +68,7 @@ define(function(require, exports, module) {
                     }
                     
                     // Open Preview
-                    tabs.open({
-                        name       : "preview-" + tab.path,
-                        editorType : "preview",
-                        pane       : pane,
-                        active     : true,
-                        document   : {
-                            preview : {
-                                path : tab.path
-                            }
-                        }
-                    }, function(){});
+                    openPreview(tab.path, pane);
                 }
             });
             button && ui.insertByIndex(parent, button, 10, handle);
@@ -124,6 +115,20 @@ define(function(require, exports, module) {
                 }
             }, handle);
             
+            // Context menu for tree
+            var itemCtxTreePreview = new apf.item({
+                caption : "Preview",
+                isAvailable : function(){
+                    return tree.selectedNode && !tree.selectedNode.isFolder;
+                },
+                onclick : function(){
+                    openPreview(tree.selected);
+                }
+            });
+            tree.getElement("mnuCtxTree", function(mnuCtxTree) {
+                ui.insertByIndex(mnuCtxTree, itemCtxTreePreview, 820, handle);
+            });
+            
             menu = new Menu({}, handle);
         }
         
@@ -169,6 +174,20 @@ define(function(require, exports, module) {
         
         function unregisterPlugin(plugin){
             delete previewers[plugin.name];
+        }
+        
+        function openPreview(path, pane){
+            tabs.open({
+                name       : "preview-" + path,
+                editorType : "preview",
+                pane       : pane,
+                active     : true,
+                document   : {
+                    preview : {
+                        path : path
+                    }
+                }
+            }, function(){});
         }
         
         function findPreviewer(path, id){
