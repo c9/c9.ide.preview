@@ -126,7 +126,7 @@ define(function(require, exports, module) {
                 }
             });
             tree.getElement("mnuCtxTree", function(mnuCtxTree) {
-                ui.insertByIndex(mnuCtxTree, itemCtxTreePreview, 820, handle);
+                ui.insertByIndex(mnuCtxTree, itemCtxTreePreview, 160, handle);
             });
             
             menu = new Menu({}, handle);
