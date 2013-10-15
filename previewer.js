@@ -88,6 +88,10 @@ define(function(require, module, exports) {
                 emit("reload"); 
             }
             
+            function popout(){ 
+                emit("popout");
+            }
+            
             function navigate(e, remove){ 
                 var session = e && e.doc ? e.doc.getSession() : currentSession;
                 var doc;
@@ -403,6 +407,11 @@ define(function(require, module, exports) {
                      */
                     "reload",
                     /**
+                     * Fires when the user would like the plugin to popout in it's own window.
+                     * @event popout
+                     */
+                    "popout",
+                    /**
                      * Fires when the user requests a different location to be previewed.
                      * @event navigate
                      * @param {Object}   e
@@ -450,6 +459,11 @@ define(function(require, module, exports) {
                  * Reload the preview of the active document.
                  */
                 reload : reload,
+                
+                /**
+                 * Pop the preview out into it's own window.
+                 */
+                popout : popout,
                 
                 /**
                  * @ignore

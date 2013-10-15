@@ -50,7 +50,7 @@
             background: url(images/c9-preview-repeat.png) no-repeat 0 -89px;
         }
         
-        .btn-preview-nav.popup .icon {
+        .btn-preview-nav.popout .icon {
             background: url(images/c9-preview-repeat.png) no-repeat 0 -114px;
         }
         

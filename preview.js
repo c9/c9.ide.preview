@@ -292,7 +292,7 @@ define(function(require, exports, module) {
                                     onclick : function(e){ reload(); }
                                 }),
                                 new ui.hsplitbox({
-                                    padding    : 0,
+                                    padding    : 3,
                                     childNodes : [
                                         new ui.bar({
                                             id         : "locationbar",
@@ -318,7 +318,7 @@ define(function(require, exports, module) {
                                             skin    : "btn-preview-nav",
                                             skinset : "previewskin",
                                             width   : 30,
-                                            class   : "popout",
+                                            "class" : "popout",
                                             onclick : function(e){ popout(); }
                                         })
                                     ]
@@ -338,7 +338,7 @@ define(function(require, exports, module) {
                 
                 txtPreview.$input.onkeydown = function(e){
                     if (e.keyCode == 13) {
-                        currentDocument.getSession().previewer.navigate({ url: this.value });
+                        currentSession.previewer.navigate({ url: this.value });
                         txtPreview.blur();
                     }
                 }
@@ -353,7 +353,7 @@ define(function(require, exports, module) {
             }
             
             function popout(){
-                
+                currentSession.previewer.popout();
             }
             
             function setPreviewer(id){
