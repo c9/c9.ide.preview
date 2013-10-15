@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Editor", "editors", "util", "settings", "Menu", "ui", 
-        "preferences", "layout", "tabManager", "tree"
+        "preferences", "layout", "tabManager", "tree", "commands"
     ];
     main.provides = ["preview"];
     return main;
@@ -21,6 +21,7 @@ define(function(require, exports, module) {
         var ui       = imports.ui;
         var util     = imports.util;
         var settings = imports.settings;
+        var commands = imports.commands;
         var layout   = imports.layout;
         var tree     = imports.tree;
         var tabs     = imports.tabManager;
@@ -129,6 +130,20 @@ define(function(require, exports, module) {
                 ui.insertByIndex(mnuCtxTree, itemCtxTreePreview, 160, handle);
             });
             
+            // Command
+            commands.addCommand({
+                name    : "reloadpreview",
+                bindKey : { mac: "Command-.", win: "Ctrl-." },
+                exec : function(){
+                    var path = tabs.focussedTab && tabs.focussedTab.path;
+                    var tab  = searchTab(path) || searchTab() || searchTab(-1);
+                    if (tab) {
+                        tabs.focusTab(tab);
+                        tab.editor.reload();
+                    }
+                }
+            }, handle)
+            
             menu = new Menu({}, handle);
         }
         
@@ -158,6 +173,20 @@ define(function(require, exports, module) {
             tabs.getTabs().every(function(tab){
                 if (tab.editorType == "preview") {
                     pane = tab.pane;
+                    return false;
+                }
+                return true;
+            });
+            return pane;
+        }
+        function searchTab(path){
+            var pane;
+            tabs.getTabs().every(function(tab){
+                if (tab.editorType == "preview" 
+                  && (!path && tab.isActive()
+                  || path && path != -1 
+                  && path == tab.document.getSession().path)) {
+                    pane = tab;
                     return false;
                 }
                 return true;
