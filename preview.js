@@ -342,6 +342,11 @@ define(function(require, exports, module) {
                         txtPreview.blur();
                     }
                 }
+                
+                txtPreview.addEventListener("contextmenu", function(e){
+                    e.cancelBubble = true;
+                    return true;
+                });
             })
             
             /***** Method *****/
