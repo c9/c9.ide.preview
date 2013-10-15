@@ -102,7 +102,9 @@ define(function(require, exports, module) {
             // Preferences
             prefs.add({
                 "Run" : {
-                    "Run & Debug" : {
+                    position : 600,
+                    "Preview" : {
+                        position : 200,
                         "Preview Running Apps" : {
                             type : "checkbox",
                             path : "user/preview/@running_app",
