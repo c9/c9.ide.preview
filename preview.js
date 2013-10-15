@@ -146,8 +146,8 @@ define(function(require, exports, module) {
             }, handle);
             
             // Import CSS
-            var css = util.replaceStaticPrefix(require("text!./style.css"));
-            ui.insertCss(css, handle);
+            var css = require("text!./style.css");
+            ui.insertCss(css, options.staticPrefix, handle);
             
             handleEmit("draw", null, true);
         }
