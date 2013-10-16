@@ -118,6 +118,7 @@ define(function(require, exports, module) {
             
             // Context menu for tree
             var itemCtxTreePreview = new apf.item({
+                match   : "file",
                 caption : "Preview",
                 isAvailable : function(){
                     return tree.selectedNode && !tree.selectedNode.isFolder;
