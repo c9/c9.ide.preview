@@ -1,6 +1,6 @@
 .previewbar{
     /*box-shadow: 0px 1px rgba(255,255,255,0.14), 0px 4px 22px rgb(0, 0, 0);*/
-    box-shadow: 0px 1px rgba(255,255,255,0.1), 0 4px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: @preview-bar-box-shadow;
     z-index: 1;
     border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
@@ -19,5 +19,44 @@
 .previewbar .locationbar .ace_searchbox .sbtb_middle{
     border-radius: 3px 0 0 3px;
     border-right : 0;
-    box-shadow : inset 1px 2px 3px 0 rgba(0,0,0,.3);
+    /*box-shadow : inset 1px 2px 3px 0 rgba(0,0,0,.3);*/
+}
+
+.previewbar .c9-toolbarbutton-glossy{
+    height : auto !important;
+}
+
+.previewbar .c9-toolbarbutton-glossy .c9-icon {
+    width  : 24px;
+    height : 23px;
+    display : block;
+    top : 0;
+}
+
+.previewbar .c9-toolbarbutton-glossy.close .c9-icon {
+    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -66px;
+}
+
+.previewbar .c9-toolbarbutton-glossy.refresh .c9-icon {
+    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -89px;
+}
+
+.previewbar .c9-toolbarbutton-glossy.popout .c9-icon {
+    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -114px;
+}
+
+.previewbar .c9-toolbarbutton-glossy.goforward .c9-icon {
+    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -186px;
+}
+
+.previewbar .c9-toolbarbutton-glossyDisabled.goforward .c9-icon {
+    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -210px;
+}
+
+.previewbar .c9-toolbarbutton-glossy.goback .c9-icon {
+    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -138px;
+}
+
+.previewbar .c9-toolbarbutton-glossyDisabled.goback .c9-icon {
+    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -162px;
 }

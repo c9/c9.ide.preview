@@ -315,8 +315,7 @@ define(function(require, exports, module) {
                             padding    : 3,
                             childNodes : [
                                 new ui.button({
-                                    skin    : "btn-preview-nav",
-                                    skinset : "previewskin",
+                                    skin    : "c9-toolbarbutton-glossy",
                                     "class" : "refresh",
                                     width   : "30",
                                     onclick : function(e){ reload(); }
@@ -345,10 +344,9 @@ define(function(require, exports, module) {
                                             ]
                                         }),
                                         new ui.button({
-                                            skin    : "btn-preview-nav",
-                                            skinset : "previewskin",
-                                            width   : 30,
+                                            skin    : "c9-toolbarbutton-glossy",
                                             "class" : "popout",
+                                            width   : "30",
                                             onclick : function(e){ popout(); }
                                         })
                                     ]

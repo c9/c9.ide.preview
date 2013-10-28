@@ -1,118 +1,35 @@
 <?xml version='1.0'?>
 <a:skin xmlns:a="http://ajax.org/2005/aml">
-<a:button name="btn-preview-nav">
-    <a:style><![CDATA[
-        .btn-preview-nav {
-            height             : 23px;
-            overflow           : hidden;
-            cursor             : default;
-            position           : relative;
-            background-repeat:no-repeat;
-            background-position: 0 0;
-            -moz-user-select: -moz-none;
-            -khtml-user-select : none;
-            -webkit-user-select: none;
-            -o-user-select: none;
-            user-select        : none;
-            
-            background: url(images/c9-preview-repeat.png) repeat-x 0 100px;
-            border-radius: 3px;
-            
-            border: 1px solid transparent;
-        }
-
-        .btn-preview-navOver {
-            background-position : 0 0;
-            border-color: #010910;
-            box-shadow: 0 0 1px rgba(255,255,255,0.5) inset;
-        }
-
-        .btn-preview-navDown {
-            /*background-position : 0 -33px;*/
-            border-color: #010910;
-            box-shadow: 1px 1px 1px rgba(0,0,0, 0.3) inset;
-        }
-
-        .btn-preview-nav .icon {
-            width                 : 24px;
-            height                : 23px;
-            -webkit-border-radius : 3px;
-            -moz-border-radius    : 3px;
-            border-radius         : 3px;
-            margin-left: 2px;
-        }
-        
-        .btn-preview-nav.close .icon {
-            background: url(images/c9-preview-repeat.png) no-repeat 0 -66px;
-        }
-        
-        .btn-preview-nav.refresh .icon {
-            background: url(images/c9-preview-repeat.png) no-repeat 0 -89px;
-        }
-        
-        .btn-preview-nav.popout .icon {
-            background: url(images/c9-preview-repeat.png) no-repeat 0 -114px;
-        }
-        
-        .btn-preview-nav.goforward .icon {
-            background: url(images/c9-preview-repeat.png) no-repeat 0 -186px;
-        }
-        
-        .btn-preview-navDisabled.goforward .icon {
-            background: url(images/c9-preview-repeat.png) no-repeat 0 -210px;
-        }
-        
-        .btn-preview-nav.goback .icon {
-            background: url(images/c9-preview-repeat.png) no-repeat 0 -138px;
-        }
-        
-        .btn-preview-navDisabled.goback .icon {
-            background: url(images/c9-preview-repeat.png) no-repeat 0 -162px;
-        }
-    ]]></a:style>
-
-     <a:presentation>
-        <a:main caption="div" label="div" background="." icon="div">
-            <div class="btn-preview-nav">
-                <div class="icon"/>
-            </div>
-        </a:main>
-    </a:presentation>
-</a:button>
 <a:button name="btn-preview-choice">
     <a:style><![CDATA[
         .btn-preview-choice {
-            -moz-user-select: -moz-none;
-            -khtml-user-select : none;
-            -webkit-user-select: none;
-            -o-user-select: none;
-            user-select        : none;
+            .user-select(none);
+            
             cursor: default;
             line-height: 19px;
             padding-right: 17px;
             font-size: 11px;
             font-weight: bold;
-            color: #333;
+            color: ;
             font-family: Arial;
             -webkit-font-smoothing: auto;
             -moz-osx-font-smoothing: auto;
-            background: rgb(190, 190, 190);
+            background: @preview-chooser-background;
             height: 20px;
             border-radius: 0 2px 2px 0;
-            box-shadow: inset 0 2px 3px 0 rgba(0,0,0,.3);
+            box-shadow: @textbox-box-shadow;
             cursor: pointer;
-            border: 1px solid #000;
+            border: 1px solid @textbox-border-color;
             border-left : 0;
             border-radius: 0 3px 3px 0;
             position : relative;
         }
         .btn-preview-choiceOver{
-            background: rgb(200, 200, 200);
+            background: @preview-chooser-over-background;
         }
         .btn-preview-choiceDown{
-            background: rgb(210, 210, 210);
+            background: @preview-chooser-active-background;
         }
-        
         .btn-preview-choice span{
             display : block;
             position : absolute;
@@ -120,7 +37,7 @@
             top : 11px;
             width : 5px;
             height : 5px;
-            background: url(images/arrow_down_black.png) no-repeat;
+            background: url("images/@{preview-chooser-arrow}") no-repeat;
             opacity: 0.6;
         }
 
@@ -129,18 +46,6 @@
             padding-left: 25px;
             padding-top: 3px;
             background-position: 5px 4px;
-        }
-
-        .btn-preview-choice.btn-terminal {
-            color: #909090;
-            font-size: 11px;
-            text-shadow: 0 1px 0 rgba(0,0,0,.25);
-        }
-        .btn-preview-choice.btn-terminal.btn-preview-choiceOver {
-            color: #c5d7bf;
-        }
-        .btn-preview-choice.btn-terminal.btn-preview-choiceDown {
-            color: #d1ebaf;
         }
     ]]></a:style>
 
