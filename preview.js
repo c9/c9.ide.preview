@@ -1,6 +1,6 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "c9", "Editor", "editors", "util", "settings", "Menu", "ui", 
+        "Editor", "editors", "settings", "Menu", "ui", 
         "preferences", "layout", "tabManager", "tree", "commands"
     ];
     main.provides = ["preview"];
@@ -17,9 +17,7 @@ define(function(require, exports, module) {
     function main(options, imports, register) {
         var Editor   = imports.Editor;
         var editors  = imports.editors;
-        var c9       = imports.c9;
         var ui       = imports.ui;
-        var util     = imports.util;
         var settings = imports.settings;
         var commands = imports.commands;
         var layout   = imports.layout;
@@ -30,6 +28,8 @@ define(function(require, exports, module) {
         
         var extensions = [];
         var counter    = 0;
+        
+        var previewUrl = options.previewUrl;
         
         /***** Initialization *****/
         
@@ -257,6 +257,12 @@ define(function(require, exports, module) {
          * @singleton
          */
         handle.freezePublicAPI({
+            /**
+             * The base URL for previewing files
+             * @property {String} previewUrl
+             */
+            get previewUrl(){ return previewUrl; },
+            
             /**
              * The menu shown to select the previewer
              * @property {Menu} previewMenu

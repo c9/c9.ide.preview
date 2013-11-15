@@ -1,12 +1,12 @@
 define(function(require, exports, module) {
-    main.consumes = ["Previewer", "layout", "vfs"];
+    main.consumes = ["Previewer", "preview", "layout", "vfs"];
     main.provides = ["preview.browser"];
     return main;
 
     function main(options, imports, register) {
         var Previewer   = imports.Previewer;
         var layout      = imports.layout;
-        var vfs         = imports.vfs;
+        var preview     = imports.preview;
         
         /***** Initialization *****/
         
@@ -19,7 +19,7 @@ define(function(require, exports, module) {
             }
         });
         
-        var BASEPATH = vfs.previewUrl;
+        var BASEPATH = preview.previewUrl;
         
         /***** Methods *****/
         
@@ -56,13 +56,6 @@ define(function(require, exports, module) {
                 
                 editor.setLocation(path);
                 tab.className.remove("loading");
-                
-                try{ iframe.contentWindow.document } 
-                catch(e) { 
-                    layout.showError("Could not access: " + session.path 
-                        + ". Reason: " + e.message); 
-                    return;
-                }
             });
             session.iframe = iframe;
             
