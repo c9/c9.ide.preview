@@ -40,6 +40,9 @@ define(function(require, exports, module) {
             var editor  = e.editor;
             
             var iframe = document.createElement("iframe");
+            iframe.setAttribute("nwfaketop");
+            iframe.setAttribute("nwdisable");
+            
             iframe.style.width    = "100%";
             iframe.style.height   = "100%";
             iframe.style.border   = 0;
