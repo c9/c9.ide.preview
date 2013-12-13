@@ -19,12 +19,13 @@ define(function(require, exports, module) {
             }
         });
         
-        var HTMLURL = (options.htmlurl || (location.protocol + "//" 
-          + location.host 
-          + "/static/plugins/c9.ide.preview/previewers/markdown.html"))
-            + "?host=" + (c9.hosted 
-              ? c9.staticUrl.match(/^(.*?\/\/.*?)\//)[1]
-              : location.origin);
+        var HTMLURL = (options.htmlurl || "/static/plugins/c9.ide.preview/previewers/markdown.html")
+            + "?host=" + location.origin;
+            
+        if (HTMLURL[0] == "/")
+            HTMLURL = location.protocol + "//" + location.host + HTMLURL;
+
+        var previewOrigin = HTMLURL.match(/^(?:[^\/]|\/\/)*/)[0];
         
         /***** Methods *****/
         
@@ -49,8 +50,8 @@ define(function(require, exports, module) {
             iframe.style.border   = 0;
             iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
             
-            window.addEventListener("message", function(e){
-                if (c9.hosted && event.origin !== "https://preview.c9.io/")
+            window.addEventListener("message", function(e) {
+                if (c9.hosted && event.origin !== previewOrigin)
                     return;
                 
                 if (e.data.message == "stream.document") {
