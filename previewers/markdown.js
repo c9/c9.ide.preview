@@ -1,5 +1,5 @@
 define(function(require, exports, module) {
-    main.consumes = ["Previewer"];
+    main.consumes = ["c9", "Previewer"];
     main.provides = ["preview.markdown"];
     return main;
 
@@ -7,6 +7,7 @@ define(function(require, exports, module) {
 
     function main(options, imports, register) {
         var Previewer = imports.Previewer;
+        var c9        = imports.c9;
         
         /***** Initialization *****/
         
@@ -18,8 +19,12 @@ define(function(require, exports, module) {
             }
         });
         
-        var HTMLURL = options.htmlurl || location.protocol + "//" 
-            + location.host + "/static/plugins/c9.ide.preview/previewers/markdown.html";
+        var HTMLURL = (options.htmlurl || (location.protocol + "//" 
+          + location.host 
+          + "/static/plugins/c9.ide.preview/previewers/markdown.html"))
+            + "?host=" + (c9.hosted 
+              ? c9.staticUrl.match(/^(.*?\/\/.*?)\//)[1]
+              : location.origin);
         
         /***** Methods *****/
         
@@ -45,8 +50,8 @@ define(function(require, exports, module) {
             iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
             
             window.addEventListener("message", function(e){
-                // if (event.origin !== "http://example.org:8080")
-                //     return;
+                if (c9.hosted && event.origin !== "https://preview.c9.io/")
+                    return;
                 
                 if (e.data.message == "stream.document") {
                     session.source = e.source;

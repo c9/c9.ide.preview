@@ -54,15 +54,17 @@
         </div>
         <script>
             var preview = document.getElementById("preview");
+            var host = location.href.match(/host=(.*)/)[1];
             
+            /*global markdown*/
             window.addEventListener("message", function(e){
-                // if (e.origin !== "http://example.org:8080")
-                //     return;
+                if (e.origin !== host)
+                    return;
                 
                 if (e.data.type == "document")
                     preview.innerHTML = markdown.toHTML(e.data.content);
             }, false);
-            window.parent.postMessage({message: "stream.document"}, location.origin);
+            window.parent.postMessage({message: "stream.document"}, host);
         </script>
     </body>
 </html>
