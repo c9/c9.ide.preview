@@ -1,5 +1,5 @@
 define(function(require, exports, module) {
-    main.consumes = ["c9", "Previewer"];
+    main.consumes = ["c9", "Previewer", "fs", "layout"];
     main.provides = ["preview.markdown"];
     return main;
 
@@ -8,6 +8,8 @@ define(function(require, exports, module) {
     function main(options, imports, register) {
         var Previewer = imports.Previewer;
         var c9        = imports.c9;
+        var fs        = imports.fs;
+        var layout    = imports.layout;
         
         /***** Initialization *****/
         
@@ -56,10 +58,24 @@ define(function(require, exports, module) {
                 
                 if (e.data.message == "stream.document") {
                     session.source = e.source;
-                    session.source.postMessage({
-                        type    : "document",
-                        content : session.previewTab.document.value
-                    }, location.origin);
+                    
+                    if (session.previewTab) {
+                        session.source.postMessage({
+                            type    : "document",
+                            content : session.previewTab.document.value
+                        }, location.origin);
+                    }
+                    else {
+                        fs.readFile(session.path, function(err, data){
+                            if (err)
+                                return layout.showError(err.message);
+                            
+                            session.source.postMessage({
+                                type    : "document",
+                                content : data
+                            }, location.origin);
+                        });
+                    }
                     
                     tab.className.remove("loading");
                 }

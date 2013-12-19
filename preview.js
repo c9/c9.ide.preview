@@ -48,29 +48,7 @@ define(function(require, exports, module) {
                 tooltip  : "Preview the current document",
                 caption  : "Preview",
                 disabled : true,
-                onclick  : function() {
-                    var tab = tabs.focussedTab;
-                    if (tab && tab.editor.type === "preview" || !tab.path)
-                        return;
-                    
-                    // Find a good location to open preview side-by-side
-                    var pane;
-                    var otherPreview = search();
-                    if (otherPreview && tab.pane != otherPreview) {
-                        pane = otherPreview;
-                    }
-                    else {
-                        var nodes = tab.pane.group;
-                        if (!nodes)
-                            pane = tab.pane.hsplit(true);
-                        else {
-                            pane = nodes[nodes.indexOf(tab.pane) === 0 ? 1 : 0];
-                        }
-                    }
-                    
-                    // Open Preview
-                    openPreview(tab.path, pane);
-                }
+                command  : "preview"
             });
             button && ui.insertByIndex(parent, button, 10, handle);
             
@@ -132,6 +110,40 @@ define(function(require, exports, module) {
             });
             
             // Command
+            commands.addCommand({
+                name : "preview",
+                exec : function(editor, args){
+                    var path, tab, pane;
+                    
+                    if (args.path)
+                        path = args.path;
+                    else {
+                        tab = tabs.focussedTab;
+                        if (tab && tab.editor.type === "preview" || !tab.path)
+                            return;
+                        
+                        // Find a good location to open preview side-by-side
+                        pane;
+                        var otherPreview = search();
+                        if (otherPreview && tab.pane != otherPreview) {
+                            pane = otherPreview;
+                        }
+                        else {
+                            var nodes = tab.pane.group;
+                            if (!nodes)
+                                pane = tab.pane.hsplit(true);
+                            else {
+                                pane = nodes[nodes.indexOf(tab.pane) === 0 ? 1 : 0];
+                            }
+                        }
+                        
+                        path = tab.path;
+                    }
+                    
+                    // Open Preview
+                    openPreview(path, pane, args && args.active);
+                }
+            }, handle);
             commands.addCommand({
                 name    : "reloadpreview",
                 bindKey : { mac: "Command-.", win: "Ctrl-." },
@@ -206,13 +218,14 @@ define(function(require, exports, module) {
             delete previewers[plugin.name];
         }
         
-        function openPreview(path, pane){
+        function openPreview(path, pane, active){
             tabs.open({
                 name       : "preview-" + path,
                 editorType : "preview",
                 pane       : pane,
-                active     : true,
+                active     : active !== false,
                 document   : {
+                    title : "[P] " + path,
                     preview : {
                         path : path
                     }
