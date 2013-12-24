@@ -63,7 +63,7 @@ define(function(require, exports, module) {
                         session.source.postMessage({
                             type    : "document",
                             content : session.previewTab.document.value
-                        }, location.origin);
+                        }, "*");
                     }
                     else {
                         fs.readFile(session.path, function(err, data){
@@ -73,7 +73,7 @@ define(function(require, exports, module) {
                             session.source.postMessage({
                                 type    : "document",
                                 content : data
-                            }, location.origin);
+                            }, "*");
                         });
                     }
                     
