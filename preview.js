@@ -453,10 +453,18 @@ define(function(require, exports, module) {
             });
             plugin.on("documentLoad", function(e){
                 var doc     = e.doc;
+                var tab     = doc.tab;
                 var session = doc.getSession();
                 
-                doc.tab.backgroundColor = "rgb(41, 41, 41)";
-                doc.tab.className.add("dark");
+                function setTheme(e){
+                    var isDark = e.theme == "dark";
+                    tab.backgroundColor = isDark ? "rgb(41, 41, 41)" : "#d6d5d5";
+                    if (isDark) tab.className.add("dark");
+                    else tab.className.remove("dark");
+                }
+                
+                layout.on("themeChange", setTheme);
+                setTheme({ theme: settings.get("user/general/@skin") || "dark" });
                 
                 // session.path = session.path || e.state.path;
                 session.initPath = session.path || e.state.path;
