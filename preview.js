@@ -146,7 +146,12 @@ define(function(require, exports, module) {
             }, handle);
             commands.addCommand({
                 name    : "reloadpreview",
-                bindKey : { mac: "Command-.", win: "Ctrl-." },
+                bindKey : { mac: "Command-Enter", win: "Ctrl-Enter" },
+                isAvailable : function(){
+                    var path = tabs.focussedTab && tabs.focussedTab.path;
+                    var tab  = searchTab(path) || searchTab() || searchTab(-1);
+                    return tab ? true : false;
+                },
                 exec : function(){
                     var path = tabs.focussedTab && tabs.focussedTab.path;
                     var tab  = searchTab(path) || searchTab() || searchTab(-1);
