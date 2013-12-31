@@ -20,6 +20,7 @@ define(function(require, exports, module) {
                 return path.match(/(?:\.md|\.markdown)$/i);
             }
         });
+        var emit = plugin.getEmitter();
         
         var HTMLURL = (options.htmlurl || "/static/plugins/c9.ide.preview/previewers/markdown.html")
             + "?host=" + location.origin;
@@ -60,10 +61,17 @@ define(function(require, exports, module) {
                     session.source = e.source;
                     
                     if (session.previewTab) {
+                        var doc = session.previewTab.document;
+                        
                         session.source.postMessage({
                             type    : "document",
-                            content : session.previewTab.document.value
+                            content : doc.value
                         }, "*");
+                        
+                        if (!doc.hasValue())
+                            doc.once("setValue", function(){
+                                emit("update", { previewDocument: doc });
+                            });
                     }
                     else {
                         fs.readFile(session.path, function(err, data){
