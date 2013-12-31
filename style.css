@@ -22,7 +22,7 @@
 }
 
 .previewbar .c9-toolbarbutton-glossy{
-    height : auto !important;
+    height : 24px !important;
 }
 
 .previewbar .c9-toolbarbutton-glossy .c9-icon {
@@ -45,17 +45,17 @@
 }
 
 .previewbar .c9-toolbarbutton-glossy.goforward .c9-icon {
-    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -186px;
+    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -185px;
 }
 
 .previewbar .c9-toolbarbutton-glossyDisabled.goforward .c9-icon {
-    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -210px;
+    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -209px;
 }
 
 .previewbar .c9-toolbarbutton-glossy.goback .c9-icon {
-    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -138px;
+    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -137px;
 }
 
 .previewbar .c9-toolbarbutton-glossyDisabled.goback .c9-icon {
-    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -162px;
+    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -161px;
 }

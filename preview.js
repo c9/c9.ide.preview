@@ -323,10 +323,36 @@ define(function(require, exports, module) {
             //var emit   = plugin.getEmitter();
             
             var currentDocument, currentSession;
-            var container, txtPreview, btnMode;
+            var container, txtPreview, btnMode, btnBack, btnForward;
             
             plugin.on("draw", function(e){
                 drawHandle();
+                
+                var buttons = options.local ? [
+                    btnBack = new ui.button({
+                        skin     : "c9-toolbarbutton-glossy",
+                        "class"  : "goback",
+                        width    : "29",
+                        disabled : true,
+                        onclick  : function(e){ goBack(); }
+                    }),
+                    btnForward = new ui.button({
+                        skin     : "c9-toolbarbutton-glossy",
+                        "class"  : "goforward",
+                        disabled : true,
+                        width    : "29",
+                        onclick  : function(e){ goForward(); }
+                    })
+                ] : [];
+                
+                buttons.push(
+                    new ui.button({
+                        skin    : "c9-toolbarbutton-glossy",
+                        "class" : "refresh",
+                        width   : "29",
+                        onclick : function(e){ reload(); }
+                    })
+                );
                 
                 // Create UI elements
                 var bar = e.tab.appendChild(new ui.vsplitbox({
@@ -338,11 +364,10 @@ define(function(require, exports, module) {
                             edge       : "4",
                             padding    : 3,
                             childNodes : [
-                                new ui.button({
-                                    skin    : "c9-toolbarbutton-glossy",
-                                    "class" : "refresh",
-                                    width   : "30",
-                                    onclick : function(e){ reload(); }
+                                new ui.bar({
+                                    width      : options.local ? 87 : 29,
+                                    "class"    : "fakehbox aligncenter",
+                                    childNodes : buttons
                                 }),
                                 new ui.hsplitbox({
                                     padding    : 3,
@@ -443,13 +468,34 @@ define(function(require, exports, module) {
                 }
             }
             
+            function goBack(){
+                currentSession.previewer.navigate({ 
+                    url: currentSession.back()
+                });
+                updateButtons();
+            }
+            function goForward(){
+                currentSession.previewer.navigate({ 
+                    url: currentSession.forward()
+                });
+                updateButtons();
+            }
+            
             function setLocation(value){
+                currentSession.add(value);
                 txtPreview.setValue(value);
+                updateButtons();
             }
             
             function setButtonStyle(caption, icon) {
                 btnMode.setCaption(caption);
                 btnMode.setIcon(icon);
+            }
+            
+            function updateButtons(){
+                btnBack.setAttribute("disabled", currentSession.position > 0);
+                btnForward.setAttribute("disabled", 
+                    currentSession.position < currentSession.stack.length - 1);
             }
             
             /***** Lifecycle *****/
@@ -477,6 +523,25 @@ define(function(require, exports, module) {
                 session.previewer = findPreviewer(session.initPath, (e.state || 0).previewer);
                 session.previewer.loadDocument(doc, plugin);
                 
+                session.stack    = [];
+                session.position = -1;
+                session.add = function(value){
+                    session.stack.splice(session.position + 1);
+                    session.stack.push(value);
+                }
+                session.back = function(){
+                    if (session.position === 0) 
+                        return false;
+                    session.position--;
+                    return session.stack[session.position];
+                }
+                session.forward = function(){
+                    if (session.position === session.stack.length - 1) 
+                        return false;
+                    session.position++;
+                    return session.stack[session.position];
+                }
+                
                 tabs.on("open", function(e){
                     if (!session.previewTab && e.options.path == session.path) {
                         session.previewTab = e.tab;
@@ -499,6 +564,8 @@ define(function(require, exports, module) {
                     previewer.navigate({ url: currentSession.initPath });
                     delete currentSession.initPath;
                 }
+                
+                updateButtons();
             });
             plugin.on("documentUnload", function(e){
                 var session = e.doc.getSession();

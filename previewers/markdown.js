@@ -53,6 +53,12 @@ define(function(require, exports, module) {
             iframe.style.border   = 0;
             iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
             
+            if (options.local) {
+                iframe.onload = function(){
+                    plugin.activeSession.add(iframe.contentWindow.location.href);
+                }
+            }
+            
             window.addEventListener("message", function(e) {
                 if (c9.hosted && event.origin !== previewOrigin)
                     return;
