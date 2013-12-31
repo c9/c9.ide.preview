@@ -493,6 +493,7 @@ define(function(require, exports, module) {
             }
             
             function updateButtons(){
+                if (!btnBack) return;
                 btnBack.setAttribute("disabled", currentSession.position > 0);
                 btnForward.setAttribute("disabled", 
                     currentSession.position < currentSession.stack.length - 1);
