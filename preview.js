@@ -1,7 +1,8 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Editor", "editors", "settings", "Menu", "ui", 
-        "preferences", "layout", "tabManager", "tree", "commands"
+        "preferences", "layout", "tabManager", "tree", "commands",
+        "dialog.error"
     ];
     main.provides = ["preview"];
     return main;
@@ -15,16 +16,17 @@ define(function(require, exports, module) {
     // @todo - Fix the activate/deactivate events on session. They leak / are not cleaned up
     
     function main(options, imports, register) {
-        var Editor   = imports.Editor;
-        var editors  = imports.editors;
-        var ui       = imports.ui;
-        var settings = imports.settings;
-        var commands = imports.commands;
-        var layout   = imports.layout;
-        var tree     = imports.tree;
-        var tabs     = imports.tabManager;
-        var prefs    = imports.preferences;
-        var Menu     = imports.Menu;
+        var Editor    = imports.Editor;
+        var editors   = imports.editors;
+        var ui        = imports.ui;
+        var settings  = imports.settings;
+        var commands  = imports.commands;
+        var layout    = imports.layout;
+        var tree      = imports.tree;
+        var tabs      = imports.tabManager;
+        var prefs     = imports.preferences;
+        var Menu      = imports.Menu;
+        var showError = imports["dialog.error"].show;
         
         var extensions = [];
         var counter    = 0;
@@ -443,7 +445,7 @@ define(function(require, exports, module) {
                 if (session) {
                     // Check if previewer is available
                     if (!previewers[id]) 
-                        return layout.showError("Could not find previewer:" + id);
+                        return showError("Could not find previewer:" + id);
                     
                     // If this previewer is already active, do nothing
                     if (session.previewer.name == id)

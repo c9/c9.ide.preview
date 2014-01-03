@@ -1,5 +1,5 @@
 define(function(require, exports, module) {
-    main.consumes = ["c9", "Previewer", "fs", "layout"];
+    main.consumes = ["c9", "Previewer", "fs", "dialog.error"];
     main.provides = ["preview.markdown"];
     return main;
 
@@ -9,7 +9,7 @@ define(function(require, exports, module) {
         var Previewer = imports.Previewer;
         var c9        = imports.c9;
         var fs        = imports.fs;
-        var layout    = imports.layout;
+        var showError = imports["dialog.error"].show;
         
         /***** Initialization *****/
         
@@ -82,7 +82,7 @@ define(function(require, exports, module) {
                     else {
                         fs.readFile(session.path, function(err, data){
                             if (err)
-                                return layout.showError(err.message);
+                                return showError(err.message);
                             
                             session.source.postMessage({
                                 type    : "document",
