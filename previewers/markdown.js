@@ -1,5 +1,5 @@
 define(function(require, exports, module) {
-    main.consumes = ["c9", "Previewer", "fs", "layout"];
+    main.consumes = ["c9", "Previewer", "fs", "dialog.error"];
     main.provides = ["preview.markdown"];
     return main;
 
@@ -9,7 +9,7 @@ define(function(require, exports, module) {
         var Previewer = imports.Previewer;
         var c9        = imports.c9;
         var fs        = imports.fs;
-        var layout    = imports.layout;
+        var showError = imports["dialog.error"].show;
         
         /***** Initialization *****/
         
@@ -20,6 +20,7 @@ define(function(require, exports, module) {
                 return path.match(/(?:\.md|\.markdown)$/i);
             }
         });
+        var emit = plugin.getEmitter();
         
         var HTMLURL = (options.htmlurl || "/static/plugins/c9.ide.preview/previewers/markdown.html")
             + "?host=" + location.origin;
@@ -52,6 +53,12 @@ define(function(require, exports, module) {
             iframe.style.border   = 0;
             iframe.style.backgroundColor = "rgba(255, 255, 255, 0.88)";
             
+            if (options.local) {
+                iframe.onload = function(){
+                    plugin.activeSession.add(iframe.contentWindow.location.href);
+                }
+            }
+            
             window.addEventListener("message", function(e) {
                 if (c9.hosted && event.origin !== previewOrigin)
                     return;
@@ -60,20 +67,27 @@ define(function(require, exports, module) {
                     session.source = e.source;
                     
                     if (session.previewTab) {
+                        var doc = session.previewTab.document;
+                        
                         session.source.postMessage({
                             type    : "document",
-                            content : session.previewTab.document.value
-                        }, location.origin);
+                            content : doc.value
+                        }, "*");
+                        
+                        if (!doc.hasValue())
+                            doc.once("setValue", function(){
+                                emit("update", { previewDocument: doc });
+                            });
                     }
                     else {
                         fs.readFile(session.path, function(err, data){
                             if (err)
-                                return layout.showError(err.message);
+                                return showError(err.message);
                             
                             session.source.postMessage({
                                 type    : "document",
                                 content : data
-                            }, location.origin);
+                            }, "*");
                         });
                     }
                     

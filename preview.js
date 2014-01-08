@@ -1,7 +1,8 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Editor", "editors", "settings", "Menu", "ui", 
-        "preferences", "layout", "tabManager", "tree", "commands"
+        "preferences", "layout", "tabManager", "tree", "commands",
+        "dialog.error"
     ];
     main.provides = ["preview"];
     return main;
@@ -15,16 +16,17 @@ define(function(require, exports, module) {
     // @todo - Fix the activate/deactivate events on session. They leak / are not cleaned up
     
     function main(options, imports, register) {
-        var Editor   = imports.Editor;
-        var editors  = imports.editors;
-        var ui       = imports.ui;
-        var settings = imports.settings;
-        var commands = imports.commands;
-        var layout   = imports.layout;
-        var tree     = imports.tree;
-        var tabs     = imports.tabManager;
-        var prefs    = imports.preferences;
-        var Menu     = imports.Menu;
+        var Editor    = imports.Editor;
+        var editors   = imports.editors;
+        var ui        = imports.ui;
+        var settings  = imports.settings;
+        var commands  = imports.commands;
+        var layout    = imports.layout;
+        var tree      = imports.tree;
+        var tabs      = imports.tabManager;
+        var prefs     = imports.preferences;
+        var Menu      = imports.Menu;
+        var showError = imports["dialog.error"].show;
         
         var extensions = [];
         var counter    = 0;
@@ -146,7 +148,12 @@ define(function(require, exports, module) {
             }, handle);
             commands.addCommand({
                 name    : "reloadpreview",
-                bindKey : { mac: "Command-.", win: "Ctrl-." },
+                bindKey : { mac: "Command-Enter", win: "Ctrl-Enter" },
+                isAvailable : function(){
+                    var path = tabs.focussedTab && tabs.focussedTab.path;
+                    var tab  = searchTab(path) || searchTab() || searchTab(-1);
+                    return tab ? true : false;
+                },
                 exec : function(){
                     var path = tabs.focussedTab && tabs.focussedTab.path;
                     var tab  = searchTab(path) || searchTab() || searchTab(-1);
@@ -318,10 +325,36 @@ define(function(require, exports, module) {
             //var emit   = plugin.getEmitter();
             
             var currentDocument, currentSession;
-            var container, txtPreview, btnMode;
+            var container, txtPreview, btnMode, btnBack, btnForward;
             
             plugin.on("draw", function(e){
                 drawHandle();
+                
+                var buttons = options.local ? [
+                    btnBack = new ui.button({
+                        skin     : "c9-toolbarbutton-glossy",
+                        "class"  : "goback",
+                        width    : "29",
+                        disabled : true,
+                        onclick  : function(e){ goBack(); }
+                    }),
+                    btnForward = new ui.button({
+                        skin     : "c9-toolbarbutton-glossy",
+                        "class"  : "goforward",
+                        disabled : true,
+                        width    : "29",
+                        onclick  : function(e){ goForward(); }
+                    })
+                ] : [];
+                
+                buttons.push(
+                    new ui.button({
+                        skin    : "c9-toolbarbutton-glossy",
+                        "class" : "refresh",
+                        width   : "29",
+                        onclick : function(e){ reload(); }
+                    })
+                );
                 
                 // Create UI elements
                 var bar = e.tab.appendChild(new ui.vsplitbox({
@@ -333,11 +366,10 @@ define(function(require, exports, module) {
                             edge       : "4",
                             padding    : 3,
                             childNodes : [
-                                new ui.button({
-                                    skin    : "c9-toolbarbutton-glossy",
-                                    "class" : "refresh",
-                                    width   : "30",
-                                    onclick : function(e){ reload(); }
+                                new ui.bar({
+                                    width      : options.local ? 87 : 29,
+                                    "class"    : "fakehbox aligncenter",
+                                    childNodes : buttons
                                 }),
                                 new ui.hsplitbox({
                                     padding    : 3,
@@ -413,7 +445,7 @@ define(function(require, exports, module) {
                 if (session) {
                     // Check if previewer is available
                     if (!previewers[id]) 
-                        return layout.showError("Could not find previewer:" + id);
+                        return showError("Could not find previewer:" + id);
                     
                     // If this previewer is already active, do nothing
                     if (session.previewer.name == id)
@@ -438,13 +470,35 @@ define(function(require, exports, module) {
                 }
             }
             
+            function goBack(){
+                currentSession.previewer.navigate({ 
+                    url: currentSession.back()
+                });
+                updateButtons();
+            }
+            function goForward(){
+                currentSession.previewer.navigate({ 
+                    url: currentSession.forward()
+                });
+                updateButtons();
+            }
+            
             function setLocation(value){
+                currentSession.add(value);
                 txtPreview.setValue(value);
+                updateButtons();
             }
             
             function setButtonStyle(caption, icon) {
                 btnMode.setCaption(caption);
                 btnMode.setIcon(icon);
+            }
+            
+            function updateButtons(){
+                if (!btnBack) return;
+                btnBack.setAttribute("disabled", currentSession.position > 0);
+                btnForward.setAttribute("disabled", 
+                    currentSession.position < currentSession.stack.length - 1);
             }
             
             /***** Lifecycle *****/
@@ -453,16 +507,43 @@ define(function(require, exports, module) {
             });
             plugin.on("documentLoad", function(e){
                 var doc     = e.doc;
+                var tab     = doc.tab;
                 var session = doc.getSession();
                 
-                doc.tab.backgroundColor = "#303130";
-                doc.tab.className.add("dark");
+                function setTheme(e){
+                    var isDark = e.theme == "dark";
+                    tab.backgroundColor = isDark ? "#303130" : "#d6d5d5";
+                    if (isDark) tab.className.add("dark");
+                    else tab.className.remove("dark");
+                }
+                
+                layout.on("themeChange", setTheme);
+                setTheme({ theme: settings.get("user/general/@skin") || "dark" });
                 
                 // session.path = session.path || e.state.path;
                 session.initPath = session.path || e.state.path;
                 
                 session.previewer = findPreviewer(session.initPath, (e.state || 0).previewer);
                 session.previewer.loadDocument(doc, plugin);
+                
+                session.stack    = [];
+                session.position = -1;
+                session.add = function(value){
+                    session.stack.splice(session.position + 1);
+                    session.stack.push(value);
+                }
+                session.back = function(){
+                    if (session.position === 0) 
+                        return false;
+                    session.position--;
+                    return session.stack[session.position];
+                }
+                session.forward = function(){
+                    if (session.position === session.stack.length - 1) 
+                        return false;
+                    session.position++;
+                    return session.stack[session.position];
+                }
                 
                 tabs.on("open", function(e){
                     if (!session.previewTab && e.options.path == session.path) {
@@ -486,6 +567,8 @@ define(function(require, exports, module) {
                     previewer.navigate({ url: currentSession.initPath });
                     delete currentSession.initPath;
                 }
+                
+                updateButtons();
             });
             plugin.on("documentUnload", function(e){
                 var session = e.doc.getSession();

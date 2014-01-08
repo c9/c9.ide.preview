@@ -57,6 +57,9 @@ define(function(require, exports, module) {
                 tab.tooltip = "[B] " + path;
                 session.lastSrc  = iframe.src;
                 
+                if (options.local)
+                    plugin.activeSession.add(iframe.contentWindow.location.href);
+                
                 editor.setLocation(path);
                 tab.className.remove("loading");
             });
