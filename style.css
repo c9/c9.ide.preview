@@ -3,6 +3,7 @@
     box-shadow: @preview-bar-box-shadow;
     z-index: 1;
     border-top: 1px solid rgba(255, 255, 255, 0.04);
+    background: #303130;
 }
 
 .previewbar .searchbox.tb_console .sbtb_middle{

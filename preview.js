@@ -455,7 +455,7 @@ define(function(require, exports, module) {
                 var doc     = e.doc;
                 var session = doc.getSession();
                 
-                doc.tab.backgroundColor = "rgb(41, 41, 41)";
+                doc.tab.backgroundColor = "#303130";
                 doc.tab.className.add("dark");
                 
                 // session.path = session.path || e.state.path;
