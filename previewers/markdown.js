@@ -144,7 +144,7 @@ define(function(require, exports, module) {
             session.source.postMessage({
                 type    : "document",
                 content : e.previewDocument.value
-            }, location.origin);
+            }, "*");
         });
         plugin.on("reload", function(){
             var iframe = plugin.activeSession.iframe;
