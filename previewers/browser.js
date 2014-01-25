@@ -1,6 +1,6 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "Previewer", "preview", "vfs", "c9", "tabManager", "watcher"
+        "Previewer", "preview", "vfs", "c9", "tabManager", "watcher", "fs"
     ];
     main.provides = ["preview.browser"];
     return main;
@@ -9,8 +9,12 @@ define(function(require, exports, module) {
         var Previewer   = imports.Previewer;
         var tabManager  = imports.tabManager;
         var c9          = imports.c9;
+        var fs          = imports.fs;
         var preview     = imports.preview;
         var watcher     = imports.watcher;
+        
+        var join        = require("path").join;
+        var dirname     = require("path").dirname;
         
         /***** Initialization *****/
         
@@ -46,19 +50,38 @@ define(function(require, exports, module) {
                 watcher.watch(path);
             });
             
-            watcher.on("delete", function(e){
-                debugger;
-            });
-            
-            watcher.on("change", function(e){
-                debugger;
-            });
-            
             // Attach to open tabs
             tabManager.getTabs().forEach(function(tab){
                 if (!tab.path) return;
                 initDocument({ tab: tab, path: tab.path });
-            });
+            }, session);
+            
+            if (session.inited)
+                return;
+            
+            session.inited = true;
+            
+            watcher.on("delete", function(e){
+                var info = isKnownFile(e.path);
+                if (info) {
+                    info.del = true;
+                    update(null, info);
+                }
+            }, session);
+            
+            watcher.on("change", function(e){
+                var info = isKnownFile(e.path);
+                if (info) {
+                    var tab = tabManager.findTab(e.path);
+                    if (tab)
+                        update(tab.document, info);
+                    else {
+                        fs.readFile(e.path, function(err, data){
+                            update({ value: data }, info);
+                        });
+                    }
+                }
+            }, session);
             
             // Listen for opening files
             tabManager.on("open", initDocument, session);
@@ -80,9 +103,11 @@ define(function(require, exports, module) {
                 var message = {
                     id      : session.id,
                     type    : "update",
-                    url     : info.url
+                    url     : info.url,
+                    del     : info.del
                 };
-                message[info.type] = doc.value;
+                if (info.type)
+                    message[info.type] = doc.value;
                 session.source.postMessage(message, "*");
             }
             
@@ -103,8 +128,8 @@ define(function(require, exports, module) {
                     }
                 }
                 
-                search(session.styles, "css");
-                search(session.scripts, "code");
+                return search(session.styles, "css")
+                    || search(session.scripts, "code");
             }
         }
         
@@ -188,15 +213,17 @@ define(function(require, exports, module) {
             session.iframe.style.display = "none";
         });
         plugin.on("navigate", function(e){
-            var tab    = plugin.activeDocument.tab;
-            var iframe = plugin.activeSession.iframe;
+            var tab     = plugin.activeDocument.tab;
+            var session = plugin.activeSession;
+            var iframe  = session.iframe;
             var url = e.url.match(/^[a-z]\w{1,4}\:\/\//)
                 ? e.url
                 : BASEPATH + e.url;
+            session.url = url;
             
             tab.className.add("loading");
             iframe.src = url + (~url.indexOf("?") ? "&" : "?")
-                + "id=" + plugin.activeSession.id
+                + "id=" + session.id
                 + "&host=" + location.origin;
             
             var path = calcRootedPath(url);
