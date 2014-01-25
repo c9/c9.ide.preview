@@ -1,12 +1,16 @@
 define(function(require, exports, module) {
-    main.consumes = ["Previewer", "preview", "layout", "vfs"];
+    main.consumes = [
+        "Previewer", "preview", "vfs", "c9", "tabManager", "watcher"
+    ];
     main.provides = ["preview.browser"];
     return main;
 
     function main(options, imports, register) {
         var Previewer   = imports.Previewer;
-        var layout      = imports.layout;
+        var tabManager  = imports.tabManager;
+        var c9          = imports.c9;
         var preview     = imports.preview;
+        var watcher     = imports.watcher;
         
         /***** Initialization *****/
         
@@ -20,6 +24,13 @@ define(function(require, exports, module) {
         });
         
         var BASEPATH = preview.previewUrl;
+        var HTMLURL = (options.htmlurl || "/static/plugins/c9.ide.preview/previewers/markdown.html")
+            
+        if (HTMLURL[0] == "/")
+            HTMLURL = location.protocol + "//" + location.host + HTMLURL;
+
+        var counter       = 0;
+        var previewOrigin = HTMLURL.match(/^(?:[^\/]|\/\/)*/)[0];
         
         /***** Methods *****/
         
@@ -27,6 +38,74 @@ define(function(require, exports, module) {
             if (url.substr(0, BASEPATH.length) == BASEPATH)
                 return url.substr(BASEPATH.length);
             return url;
+        }
+        
+        function initiate(session){
+            // Add watchers to all styles and scripts and href
+            [session.href].concat(session.styles, session.scripts).forEach(function(path){
+                watcher.watch(path);
+            });
+            
+            watcher.on("delete", function(e){
+                debugger;
+            });
+            
+            watcher.on("change", function(e){
+                debugger;
+            });
+            
+            // Attach to open tabs
+            tabManager.getTabs().forEach(function(tab){
+                if (!tab.path) return;
+                initDocument({ tab: tab, path: tab.path });
+            });
+            
+            // Listen for opening files
+            tabManager.on("open", initDocument, session);
+            
+            function initDocument(e){
+                var info = isKnownFile(e.path);
+                if (info) {
+                    var doc = e.tab.document;
+                    
+                    doc.undoManager.on("change", 
+                        update.bind(null, doc, info), session);
+                    
+                    if (doc.changed)
+                        update(doc, info);
+                }
+            }
+            
+            function update(doc, info){
+                var message = {
+                    id      : session.id,
+                    type    : "update",
+                    url     : info.url
+                };
+                message[info.type] = doc.value;
+                session.source.postMessage(message, "*");
+            }
+            
+            function isKnownFile(path){
+                var found;
+                
+                if (~session.href.indexOf(path))
+                    return { url: session.href, type: "html" }
+                
+                function search(arr, type) {
+                    if (arr.some(function(p){
+                        if (~p.indexOf(path)) {
+                            found = p;
+                            return true;
+                        }
+                    })) {
+                        return { url: found, type: type }
+                    }
+                }
+                
+                search(session.styles, "css");
+                search(session.scripts, "code");
+            }
         }
         
         /***** Lifecycle *****/
@@ -63,9 +142,30 @@ define(function(require, exports, module) {
                 editor.setLocation(path);
                 tab.className.remove("loading");
             });
-            session.iframe = iframe;
             
+            window.addEventListener("message", function(e) {
+                if (c9.hosted && event.origin !== previewOrigin)
+                    return;
+                
+                if (session.id != e.data.id)
+                    return;
+                
+                if (e.data.message == "html.ready") {
+                    session.source = e.source;
+                    
+                    var data = e.data.data;
+                    session.styles  = data.styles;
+                    session.scripts = data.scripts;
+                    session.href    = data.href;
+                    
+                    initiate(session);
+                }
+            }, false);
+            
+            session.id     = "livepreview" + counter++;
+            session.iframe = iframe;
             session.editor = editor;
+            
             editor.container.appendChild(session.iframe);
         });
         plugin.on("documentUnload", function(e){
@@ -95,7 +195,9 @@ define(function(require, exports, module) {
                 : BASEPATH + e.url;
             
             tab.className.add("loading");
-            iframe.src = url;
+            iframe.src = url + (~url.indexOf("?") ? "&" : "?")
+                + "id=" + plugin.activeSession.id
+                + "&host=" + location.origin;
             
             var path = calcRootedPath(url);
             tab.title   = 
@@ -103,9 +205,9 @@ define(function(require, exports, module) {
             plugin.activeSession.editor.setLocation(path);
         });
         plugin.on("update", function(e){
-            var iframe = plugin.activeSession.iframe;
-            if (e.saved)
-                iframe.src = iframe.src;
+            // var iframe = plugin.activeSession.iframe;
+            // if (e.saved)
+            //     iframe.src = iframe.src;
         });
         plugin.on("reload", function(){
             var iframe = plugin.activeSession.iframe;
