@@ -94,6 +94,10 @@ define(function(require, exports, module) {
                     doc.undoManager.on("change", 
                         update.bind(null, doc, info), session);
                     
+                    e.tab.on("close", function(){
+                        watcher.watch(e.tab.path);
+                    });
+                    
                     if (doc.changed)
                         update(doc, info);
                 }
