@@ -1,3 +1,4 @@
+/*global nativeRequire*/
 define(function(require, exports, module) {
     main.consumes = [
         "Previewer", "preview", "vfs", "c9", "tabManager", "watcher", "fs",
@@ -262,7 +263,10 @@ define(function(require, exports, module) {
         });
         plugin.on("popout", function(){
             var src = plugin.activeSession.iframe.src;
-            window.open(src);
+            if (options.local)
+                nativeRequire('nw.gui').Shell.openExternal(src);
+            else
+                window.open(src);
         });
         plugin.on("enable", function(){
             
