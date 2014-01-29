@@ -121,7 +121,7 @@ define(function(require, exports, module) {
                         path = args.path;
                     else {
                         tab = tabs.focussedTab;
-                        if (tab && tab.editor.type === "preview" || !tab.path)
+                        if (tab && (tab.editor.type === "preview" || !tab.path))
                             return;
                         
                         // Find a good location to open preview side-by-side
