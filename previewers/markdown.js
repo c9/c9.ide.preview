@@ -1,5 +1,5 @@
 define(function(require, exports, module) {
-    main.consumes = ["c9", "Previewer", "fs", "dialog.error"];
+    main.consumes = ["c9", "Previewer", "fs", "dialog.error", "commands"];
     main.provides = ["preview.markdown"];
     return main;
 
@@ -9,6 +9,7 @@ define(function(require, exports, module) {
         var Previewer = imports.Previewer;
         var c9        = imports.c9;
         var fs        = imports.fs;
+        var commands  = imports.commands;
         var showError = imports["dialog.error"].show;
         var dirname   = require("path").dirname;
         
@@ -67,7 +68,10 @@ define(function(require, exports, module) {
                 if (c9.hosted && event.origin !== previewOrigin)
                     return;
                 
-                if (e.data.message == "stream.document") {
+                if (e.data.message == "exec") {
+                    commands.exec(e.data.command);
+                }
+                else if (e.data.message == "stream.document") {
                     session.source = e.source;
                     
                     if (session.previewTab) {
@@ -94,6 +98,11 @@ define(function(require, exports, module) {
                             }, "*");
                         });
                     }
+                    
+                    session.source.postMessage({
+                        type : "keys",
+                        keys : commands.getExceptionBindings()
+                    }, "*");
                     
                     tab.className.remove("loading");
                 }

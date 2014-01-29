@@ -53,20 +53,189 @@
         
         </div>
         <script>
-            var preview = document.getElementById("preview");
-            var host = location.href.match(/host=(.*)/)[1];
-            
-            /*global markdown*/
-            window.addEventListener("message", function(e){
-                if (host != "local" && e.origin !== host)
-                    return;
+            (function(){
+                /*global markdown*/
+                var preview = document.getElementById("preview");
+                var host = location.href.match(/host=(.*)/)[1];
                 
-                if (e.data.type == "document")
-                    preview.innerHTML = markdown.toHTML(e.data.content);
-            }, false);
-            debugger;
-            window.parent.postMessage({message: "stream.document"}, 
-                host == "local" ? "*" : host);
+                var ckb;
+                function setKeys(list){
+                    ckb = {};
+                    
+                    list.forEach(function(item) {
+                        var binding = item.binding;
+                        var command = item.command;
+                        var hashId  = binding.hashId;
+                        var hash    = (ckb[hashId] || (ckb[hashId] = {}));
+                        
+                        if (!hash[binding.key]) {
+                            hash[binding.key] = command;
+                        } else {
+                            if (!Array.isArray(hash[binding.key]))
+                                hash[binding.key] = [hash[binding.key]];
+                            
+                            hash[binding.key].push(command);
+                        }
+                    }, this);
+                }
+                
+                function mixin(target, source){
+                    for (var prop in source) {
+                        target[prop] = source[prop];
+                    }
+                }
+                
+                var keyUtil = (function() {
+                    var ret = {
+                        MODIFIER_KEYS: {
+                            16: 'Shift', 17: 'Ctrl', 18: 'Alt', 224: 'Meta'
+                        },
+                
+                        KEY_MODS: {
+                            "ctrl": 1, "alt": 2, "option" : 2, "shift": 4,
+                            "super": 8, "meta": 8, "command": 8, "cmd": 8
+                        },
+                
+                        FUNCTION_KEYS : {
+                            8  : "Backspace",
+                            9  : "Tab",
+                            13 : "Return",
+                            19 : "Pause",
+                            27 : "Esc",
+                            32 : "Space",
+                            33 : "PageUp",
+                            34 : "PageDown",
+                            35 : "End",
+                            36 : "Home",
+                            37 : "Left",
+                            38 : "Up",
+                            39 : "Right",
+                            40 : "Down",
+                            44 : "Print",
+                            45 : "Insert",
+                            46 : "Delete",
+                            96 : "Numpad0",
+                            97 : "Numpad1",
+                            98 : "Numpad2",
+                            99 : "Numpad3",
+                            100: "Numpad4",
+                            101: "Numpad5",
+                            102: "Numpad6",
+                            103: "Numpad7",
+                            104: "Numpad8",
+                            105: "Numpad9",
+                            '-13': "NumpadEnter",
+                            112: "F1",
+                            113: "F2",
+                            114: "F3",
+                            115: "F4",
+                            116: "F5",
+                            117: "F6",
+                            118: "F7",
+                            119: "F8",
+                            120: "F9",
+                            121: "F10",
+                            122: "F11",
+                            123: "F12",
+                            144: "Numlock",
+                            145: "Scrolllock"
+                        },
+                
+                        PRINTABLE_KEYS: {
+                           32: ' ',  48: '0',  49: '1',  50: '2',  51: '3',  52: '4', 53:  '5',
+                           54: '6',  55: '7',  56: '8',  57: '9',  59: ';',  61: '=', 65:  'a',
+                           66: 'b',  67: 'c',  68: 'd',  69: 'e',  70: 'f',  71: 'g', 72:  'h',
+                           73: 'i',  74: 'j',  75: 'k',  76: 'l',  77: 'm',  78: 'n', 79:  'o',
+                           80: 'p',  81: 'q',  82: 'r',  83: 's',  84: 't',  85: 'u', 86:  'v',
+                           87: 'w',  88: 'x',  89: 'y',  90: 'z', 107: '+', 109: '-', 110: '.',
+                          188: ',', 190: '.', 191: '/', 192: '`', 219: '[', 220: '\\',
+                          221: ']', 222: '\''
+                        }
+                    };
+                
+                    // A reverse map of FUNCTION_KEYS
+                    for (var i in ret.FUNCTION_KEYS) {
+                        var name = ret.FUNCTION_KEYS[i].toLowerCase();
+                        ret[name] = parseInt(i, 10);
+                    }
+                
+                    // Add the MODIFIER_KEYS, FUNCTION_KEYS and PRINTABLE_KEYS to the KEY
+                    // variables as well.
+                    mixin(ret, ret.MODIFIER_KEYS);
+                    mixin(ret, ret.PRINTABLE_KEYS);
+                    mixin(ret, ret.FUNCTION_KEYS);
+                
+                    // aliases
+                    ret.enter  = ret["return"];
+                    ret.escape = ret.esc;
+                    ret.del    = ret["delete"];
+                    
+                    // workaround for firefox bug
+                    ret[173] = '-';
+                
+                    return ret;
+                })();
+                
+                function parseKeys(keys) {
+                    // todo support keychains 
+                    if (keys.indexOf(" ") != -1)
+                        keys = keys.split(/\s+/).pop();
+            
+                    var parts = keys.toLowerCase().split(/[\-\+]([\-\+])?/).filter(function(x){return x});
+                    var key = parts.pop();
+            
+                    var keyCode = keyUtil[key];
+                    if (keyUtil.FUNCTION_KEYS[keyCode])
+                        key = keyUtil.FUNCTION_KEYS[keyCode].toLowerCase();
+                    else if (!parts.length)
+                        return {key: key, hashId: -1};
+                    else if (parts.length == 1 && parts[0] == "shift")
+                        return {key: key.toUpperCase(), hashId: -1};
+            
+                    var hashId = 0;
+                    for (var i = parts.length; i--;) {
+                        var modifier = keyUtil.KEY_MODS[parts[i]];
+                        if (modifier === null) {
+                            if (typeof console != "undefined")
+                            console.error("invalid modifier " + parts[i] + " in " + keys);
+                            return false;
+                        }
+                        hashId |= modifier;
+                    }
+                    return {key: key, hashId: hashId};
+                }
+                
+                document.addEventListener("keydown", function(e){
+                    var hashId = 0 | (e.ctrlKey ? 1 : 0) | (e.altKey ? 2 : 0)
+                        | (e.shiftKey ? 4 : 0) | (e.metaKey ? 8 : 0);
+                    var keys = ckb[hashId];
+                    if (keys && keys[keyUtil[e.keyCode]]) {
+                        var cmd = keys[keyUtil[e.keyCode]];
+                        
+                        send({ message: "exec", command: cmd });
+                        
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                });
+                
+                window.addEventListener("message", function(e){
+                    if (host != "local" && e.origin !== host)
+                        return;
+                    
+                    if (e.data.type == "document")
+                        preview.innerHTML = markdown.toHTML(e.data.content);
+                    else if (e.data.type == "keys")
+                        setKeys(e.data.keys);
+                }, false);
+                
+                function send(message){
+                    window.parent.postMessage(message, 
+                        host == "local" ? "*" : host);
+                }
+                
+                send({ message: "stream.document" });
+            })();
         </script>
     </body>
 </html>
