@@ -1,17 +1,20 @@
 define(function(require, exports, module) {
-    main.consumes = ["c9", "Previewer", "fs", "dialog.error", "commands"];
+    main.consumes = [
+        "c9", "Previewer", "fs", "dialog.error", "commands", "tabManager"
+    ];
     main.provides = ["preview.markdown"];
     return main;
 
     // @todo possible improvements: http://benweet.github.io/stackedit/#
 
     function main(options, imports, register) {
-        var Previewer = imports.Previewer;
-        var c9        = imports.c9;
-        var fs        = imports.fs;
-        var commands  = imports.commands;
-        var showError = imports["dialog.error"].show;
-        var dirname   = require("path").dirname;
+        var Previewer  = imports.Previewer;
+        var c9         = imports.c9;
+        var fs         = imports.fs;
+        var commands   = imports.commands;
+        var tabManager = imports.tabManager;
+        var showError  = imports["dialog.error"].show;
+        var dirname    = require("path").dirname;
         
         /***** Initialization *****/
         
@@ -70,6 +73,9 @@ define(function(require, exports, module) {
                 
                 if (e.data.message == "exec") {
                     commands.exec(e.data.command);
+                }
+                else if (e.data.message == "focus") {
+                    tabManager.focusTab(tab);
                 }
                 else if (e.data.message == "stream.document") {
                     session.source = e.source;

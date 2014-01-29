@@ -229,6 +229,10 @@
                         setKeys(e.data.keys);
                 }, false);
                 
+                window.addEventListener("focus", function(){
+                    send({ message: "focus" });
+                });
+                
                 function send(message){
                     window.parent.postMessage(message, 
                         host == "local" ? "*" : host);

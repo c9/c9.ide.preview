@@ -1,6 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "Previewer", "preview", "vfs", "c9", "tabManager", "watcher", "fs"
+        "Previewer", "preview", "vfs", "c9", "tabManager", "watcher", "fs",
+        "commands"
     ];
     main.provides = ["preview.browser"];
     return main;
@@ -12,6 +13,7 @@ define(function(require, exports, module) {
         var fs          = imports.fs;
         var preview     = imports.preview;
         var watcher     = imports.watcher;
+        var commands    = imports.commands;
         
         var join        = require("path").join;
         var dirname     = require("path").dirname;
@@ -179,13 +181,25 @@ define(function(require, exports, module) {
                 if (session.id != e.data.id)
                     return;
                 
-                if (e.data.message == "html.ready") {
+                if (e.data.message == "exec") {
+                    commands.exec(e.data.command);
+                }
+                else if (e.data.message == "focus") {
+                    tabManager.focusTab(tab);
+                }
+                else if (e.data.message == "html.ready") {
                     session.source = e.source;
                     
                     var data = e.data.data;
                     session.styles  = data.styles;
                     session.scripts = data.scripts;
                     session.href    = data.href;
+                    
+                    session.source.postMessage({
+                        id   : session.id,
+                        type : "keys",
+                        keys : commands.getExceptionBindings()
+                    }, "*");
                     
                     initiate(session);
                 }
