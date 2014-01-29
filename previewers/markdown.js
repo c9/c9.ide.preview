@@ -10,6 +10,7 @@ define(function(require, exports, module) {
         var c9        = imports.c9;
         var fs        = imports.fs;
         var showError = imports["dialog.error"].show;
+        var dirname   = require("path").dirname;
         
         /***** Initialization *****/
         
@@ -22,8 +23,11 @@ define(function(require, exports, module) {
         });
         var emit = plugin.getEmitter();
         
-        var HTMLURL = (options.htmlurl || "/static/plugins/c9.ide.preview/previewers/markdown.html")
-            + "?host=" + location.origin;
+        var HTMLURL = (options.staticPrefix 
+            ? (options.local ? dirname(document.baseURI) + "/static" : options.staticPrefix) 
+                + options.htmlPath
+            : "/static/plugins/c9.ide.preview/previewers/markdown.html")
+                + "?host=" + (options.local ? "local" : location.origin);
             
         if (HTMLURL[0] == "/")
             HTMLURL = location.protocol + "//" + location.host + HTMLURL;
@@ -45,7 +49,7 @@ define(function(require, exports, module) {
             
             var iframe = document.createElement("iframe");
             
-            iframe.setAttribute("nwfaketop", true);
+            // iframe.setAttribute("nwfaketop", true);
             iframe.setAttribute("nwdisable", true);
 
             iframe.style.width    = "100%";

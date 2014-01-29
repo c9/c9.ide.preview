@@ -148,7 +148,7 @@ define(function(require, exports, module) {
             var editor  = e.editor;
             
             var iframe = document.createElement("iframe");
-            iframe.setAttribute("nwfaketop", true);
+            // iframe.setAttribute("nwfaketop", true);
             iframe.setAttribute("nwdisable", true);
             
             iframe.style.width    = "100%";
@@ -228,7 +228,7 @@ define(function(require, exports, module) {
             tab.className.add("loading");
             iframe.src = url + (~url.indexOf("?") ? "&" : "?")
                 + "id=" + session.id
-                + "&host=" + location.origin;
+                + "&host=" + (options.local ? "local" : location.origin);
             
             var path = calcRootedPath(url);
             tab.title   = 

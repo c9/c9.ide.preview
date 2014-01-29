@@ -58,13 +58,15 @@
             
             /*global markdown*/
             window.addEventListener("message", function(e){
-                if (e.origin !== host)
+                if (host != "local" && e.origin !== host)
                     return;
                 
                 if (e.data.type == "document")
                     preview.innerHTML = markdown.toHTML(e.data.content);
             }, false);
-            window.parent.postMessage({message: "stream.document"}, host);
+            debugger;
+            window.parent.postMessage({message: "stream.document"}, 
+                host == "local" ? "*" : host);
         </script>
     </body>
 </html>
