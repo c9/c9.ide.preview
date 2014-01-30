@@ -31,9 +31,9 @@ define(function(require, exports, module) {
         });
         
         var BASEPATH = preview.previewUrl;
-        var HTMLURL = (options.htmlurl || "/static/plugins/c9.ide.preview/previewers/markdown.html")
+        var HTMLURL = options.htmlurl
             
-        if (HTMLURL[0] == "/")
+        if (!HTMLURL || HTMLURL.charAt(0) == "/")
             HTMLURL = location.protocol + "//" + location.host + HTMLURL;
 
         var counter       = 0;

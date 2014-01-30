@@ -27,23 +27,23 @@ define(function(require, exports, module) {
         });
         var emit = plugin.getEmitter();
         
-        var HTMLURL = (options.staticPrefix 
-            ? (options.local ? dirname(document.baseURI) + "/static" : options.staticPrefix) 
-                + options.htmlPath
-            : "/static/plugins/c9.ide.preview/previewers/markdown.html")
-                + "?host=" + (options.local ? "local" : location.origin);
-            
-        if (HTMLURL[0] == "/")
-            HTMLURL = location.protocol + "//" + location.host + HTMLURL;
-
-        var previewOrigin = HTMLURL.match(/^(?:[^\/]|\/\/)*/)[0];
+        var HTMLURL, previewOrigin;
         
         /***** Methods *****/
         
         /***** Lifecycle *****/
         
         plugin.on("load", function(){
-            
+            HTMLURL = (options.staticPrefix 
+                ? (options.local ? dirname(document.baseURI) + "/static" : options.staticPrefix) 
+                    + options.htmlPath
+                : "/static/plugins/c9.ide.preview/previewers/markdown.html")
+                    + "?host=" + (options.local ? "local" : location.origin);
+                
+            if (HTMLURL.charAt(0) == "/")
+                HTMLURL = location.protocol + "//" + location.host + HTMLURL;
+    
+            previewOrigin = HTMLURL.match(/^(?:[^\/]|\/\/)*/)[0];
         });
         plugin.on("documentLoad", function(e){
             var doc     = e.doc;
