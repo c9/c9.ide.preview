@@ -175,7 +175,7 @@ define(function(require, exports, module) {
                 tab.className.remove("loading");
             });
             
-            window.addEventListener("message", function(e) {
+            var onMessage = function(e) {
                 if (c9.hosted && event.origin !== previewOrigin)
                     return;
                 
@@ -204,7 +204,11 @@ define(function(require, exports, module) {
                     
                     initiate(session);
                 }
-            }, false);
+            };
+            window.addEventListener("message", onMessage, false);
+            session.addOther(function(){
+                window.removeEventListener("message", onMessage, false);
+            });
             
             session.id     = "livepreview" + counter++;
             session.iframe = iframe;

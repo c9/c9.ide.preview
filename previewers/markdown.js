@@ -67,7 +67,7 @@ define(function(require, exports, module) {
                 }
             }
             
-            window.addEventListener("message", function(e) {
+            var onMessage = function(e) {
                 if (c9.hosted && event.origin !== previewOrigin)
                     return;
                 
@@ -112,7 +112,13 @@ define(function(require, exports, module) {
                     
                     tab.className.remove("loading");
                 }
-            }, false);
+            };
+            window.addEventListener("message", onMessage, false);
+            session.addOther(function(){
+                window.removeEventListener("message", onMessage, false);
+            });
+            
+            // Set iframe
             session.iframe = iframe;
             
             // Load the markup renderer
