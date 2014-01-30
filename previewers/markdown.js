@@ -31,9 +31,12 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        /***** Lifecycle *****/
-        
-        plugin.on("load", function(){
+        function getPreviewUrl(fn){
+            if (options.local && document.baseURI.substr(0, 5) == "file:")
+                return setTimeout(getPreviewUrl.bind(null, fn), 100);
+            else if (HTMLURL)
+                return fn(HTMLURL);
+            
             HTMLURL = (options.staticPrefix 
                 ? (options.local ? dirname(document.baseURI) + "/static" : options.staticPrefix) 
                     + options.htmlPath
@@ -44,6 +47,14 @@ define(function(require, exports, module) {
                 HTMLURL = location.protocol + "//" + location.host + HTMLURL;
     
             previewOrigin = HTMLURL.match(/^(?:[^\/]|\/\/)*/)[0];
+            
+            fn(HTMLURL);
+        }
+        
+        /***** Lifecycle *****/
+        
+        plugin.on("load", function(){
+            
         });
         plugin.on("documentLoad", function(e){
             var doc     = e.doc;
@@ -122,7 +133,7 @@ define(function(require, exports, module) {
             session.iframe = iframe;
             
             // Load the markup renderer
-            iframe.src = HTMLURL;
+            getPreviewUrl(function(url){ iframe.src = url; });
             
             session.editor = editor;
             editor.container.appendChild(session.iframe);
