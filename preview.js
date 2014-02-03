@@ -31,8 +31,6 @@ define(function(require, exports, module) {
         var extensions = [];
         var counter    = 0;
         
-        options.local = true;
-        
         var previewUrl = options.previewUrl;
         
         /***** Initialization *****/
