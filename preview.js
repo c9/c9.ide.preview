@@ -31,6 +31,8 @@ define(function(require, exports, module) {
         var extensions = [];
         var counter    = 0;
         
+        options.local = true;
+        
         var previewUrl = options.previewUrl;
         
         /***** Initialization *****/
@@ -334,6 +336,7 @@ define(function(require, exports, module) {
                     btnBack = new ui.button({
                         skin     : "c9-toolbarbutton-glossy",
                         "class"  : "goback",
+                        tooltip  : "Back",
                         width    : "29",
                         disabled : true,
                         onclick  : function(e){ goBack(); }
@@ -341,6 +344,7 @@ define(function(require, exports, module) {
                     btnForward = new ui.button({
                         skin     : "c9-toolbarbutton-glossy",
                         "class"  : "goforward",
+                        tooltip  : "Forward",
                         disabled : true,
                         width    : "29",
                         onclick  : function(e){ goForward(); }
@@ -351,6 +355,7 @@ define(function(require, exports, module) {
                     new ui.button({
                         skin    : "c9-toolbarbutton-glossy",
                         "class" : "refresh",
+                        tooltip : "Refresh",
                         width   : "29",
                         onclick : function(e){ reload(); }
                     })
@@ -397,6 +402,7 @@ define(function(require, exports, module) {
                                         new ui.button({
                                             skin    : "c9-toolbarbutton-glossy",
                                             "class" : "popout",
+                                            tooltip : "Pop Out Into New Window",
                                             width   : "30",
                                             onclick : function(e){ popout(); }
                                         })
@@ -483,8 +489,16 @@ define(function(require, exports, module) {
                 updateButtons();
             }
             
-            function setLocation(value){
-                currentSession.add(value);
+            function setLocation(value, visualOnly){
+                if (!value) return;
+                
+                if (!visualOnly) {
+                    var session = currentSession;
+                    var current = session.stack[session.position];
+                    if (current != value)
+                        session.add(value);
+                }
+                    
                 txtPreview.setValue(value);
                 updateButtons();
             }
@@ -496,9 +510,9 @@ define(function(require, exports, module) {
             
             function updateButtons(){
                 if (!btnBack) return;
-                btnBack.setAttribute("disabled", currentSession.position > 0);
+                btnBack.setAttribute("disabled", currentSession.position < 1);
                 btnForward.setAttribute("disabled", 
-                    currentSession.position < currentSession.stack.length - 1);
+                    currentSession.position == currentSession.stack.length - 1);
             }
             
             /***** Lifecycle *****/
@@ -531,6 +545,7 @@ define(function(require, exports, module) {
                 session.add = function(value){
                     session.stack.splice(session.position + 1);
                     session.stack.push(value);
+                    session.position++;
                 }
                 session.back = function(){
                     if (session.position === 0) 
