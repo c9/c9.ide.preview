@@ -460,8 +460,9 @@ define(function(require, exports, module) {
                     
                     // Unload the previous previewer
                     if (session.previewer) {
-                        session.cleanUp();
                         session.previewer.unloadDocument(doc);
+                        session.cleanUp();
+                        session.destroy && session.destroy();
                     }
                         
                     // Enable the new previewer

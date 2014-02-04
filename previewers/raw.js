@@ -22,22 +22,7 @@ define(function(require, exports, module) {
             if (drawn) return;
             drawn = true;
             
-            var css = ".rawview{\
-                position : absolute;\
-                left : 0;\
-                top : 0;\
-                right : 0;\
-                bottom : 0;\
-                color : #f1f1f1;\
-                overflow : auto;\
-                margin : 0;\
-                padding : 10px;\
-                background-color : rgb(42, 58, 45);\
-            }\
-            .rawview::selection { background: #748512; }\
-            .rawview::-moz-selection { background: #748512; }";
-            
-            ui.insertCss(css, plugin);
+            ui.insertCss(require("text!./raw.css"), plugin);
         
             // emit("draw");
         }
