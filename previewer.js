@@ -51,6 +51,17 @@ define(function(require, module, exports) {
                 
                 if (divider)
                     div = rootMenu.append(new Divider({ position: index + 10 }));
+                
+                tabs.on("focusSync", function(e){
+                    if (e.tab.editorType == "preview") {
+                        var session = e.tab.document.getSession();
+                        if (session.previewer == plugin) {
+                            if (currentSession != session) {
+                                activateDocument(e.tab.document);
+                            }
+                        }
+                    }
+                })
             });
             
             /***** Methods *****/

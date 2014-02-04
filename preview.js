@@ -488,7 +488,7 @@ define(function(require, exports, module) {
             }
             
             function setLocation(value, visualOnly){
-                if (!value) return;
+                if (!value || !currentSession) return;
                 
                 if (!visualOnly) {
                     var session = currentSession;
@@ -522,6 +522,11 @@ define(function(require, exports, module) {
                 var tab     = doc.tab;
                 var session = doc.getSession();
                 
+                if (session.inited) {
+                    session.previewer.loadDocument(doc, plugin);
+                    return;
+                }
+                
                 function setTheme(e){
                     var isDark = e.theme == "dark";
                     tab.backgroundColor = isDark ? "#303130" : "#d6d5d5";
@@ -529,15 +534,16 @@ define(function(require, exports, module) {
                     else tab.className.remove("dark");
                 }
                 
-                layout.on("themeChange", setTheme);
+                layout.on("themeChange", setTheme, doc);
                 setTheme({ theme: settings.get("user/general/@skin") || "dark" });
                 
                 // session.path = session.path || e.state.path;
                 session.initPath = session.path || e.state.path;
-                
+                session.inited   = true;
+            
                 session.previewer = findPreviewer(session.initPath, (e.state || 0).previewer);
                 session.previewer.loadDocument(doc, plugin);
-                
+            
                 session.stack    = [];
                 session.position = -1;
                 session.add = function(value){
@@ -557,13 +563,13 @@ define(function(require, exports, module) {
                     session.position++;
                     return session.stack[session.position];
                 }
-                
+            
                 tabs.on("open", function(e){
                     if (!session.previewTab && e.options.path == session.path) {
                         session.previewTab = e.tab;
                         session.previewer.navigate({ url : session.path, tab: e.tab });
                     }
-                }, session);
+                }, doc);
             });
             plugin.on("documentActivate", function(e){
                 if (currentDocument)
