@@ -67,6 +67,11 @@ define(function(require, module, exports) {
             /***** Methods *****/
             
             function loadDocument(doc, editor, state){
+                if (!doc.meta.$previewInited) {
+                    doc.addOther(function(){ navigate({ doc: doc }, true); });
+                    doc.meta.$previewInited = true;
+                }
+                
                 emit("documentLoad", { doc: doc, editor: editor, state: state });
             }
             
@@ -82,6 +87,8 @@ define(function(require, module, exports) {
             }
             
             function deactivateDocument(doc){
+                currentSession.navigate()
+                
                 currentDocument = null;
                 currentSession  = null;
                 
