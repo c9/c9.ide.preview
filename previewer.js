@@ -61,7 +61,7 @@ define(function(require, module, exports) {
                             }
                         }
                     }
-                })
+                });
             });
             
             /***** Methods *****/
@@ -87,8 +87,6 @@ define(function(require, module, exports) {
             }
             
             function deactivateDocument(doc){
-                currentSession.navigate()
-                
                 currentDocument = null;
                 currentSession  = null;
                 
