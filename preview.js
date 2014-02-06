@@ -158,7 +158,7 @@ define(function(require, exports, module) {
                     var path = tabs.focussedTab && tabs.focussedTab.path;
                     var tab  = searchTab(path) || searchTab() || searchTab(-1);
                     if (tab) {
-                        tabs.focusTab(tab);
+                        // tabs.focusTab(tab);
                         tab.editor.reload();
                     }
                 }
