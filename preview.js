@@ -184,7 +184,7 @@ define(function(require, exports, module) {
             var css = require("text!./style.css");
             ui.insertCss(css, options.staticPrefix, handle);
             
-            handleEmit("draw", null, true);
+            handleEmit.sticky("draw");
         }
         
         //Search through pages
