@@ -162,7 +162,7 @@ define(function(require, exports, module) {
                         tab.editor.reload();
                     }
                 }
-            }, handle)
+            }, handle);
             
             menu = new Menu({}, handle);
         }
@@ -175,7 +175,7 @@ define(function(require, exports, module) {
             // Import Skin
             ui.insertSkin({
                 name         : "previewskin",
-                data         : require("text!./skin.xml"),
+                data         : require("text!./preview.xml"),
                 "media-path" : options.staticPrefix + "/images/",
                 "icon-path"  : options.staticPrefix + "/images/"
             }, handle);
@@ -424,13 +424,13 @@ define(function(require, exports, module) {
                         currentSession.previewer.navigate({ url: this.value });
                         txtPreview.blur();
                     }
-                }
+                };
                 
                 txtPreview.addEventListener("contextmenu", function(e){
                     e.cancelBubble = true;
                     return true;
                 });
-            })
+            });
             
             /***** Method *****/
             
@@ -551,19 +551,19 @@ define(function(require, exports, module) {
                     session.stack.splice(session.position + 1);
                     session.stack.push(value);
                     session.position++;
-                }
+                };
                 session.back = function(){
                     if (session.position === 0) 
                         return false;
                     session.position--;
                     return session.stack[session.position];
-                }
+                };
                 session.forward = function(){
                     if (session.position === session.stack.length - 1) 
                         return false;
                     session.position++;
                     return session.stack[session.position];
-                }
+                };
             
                 tabs.on("open", function(e){
                     if (!session.previewTab && e.options.path == session.path) {
