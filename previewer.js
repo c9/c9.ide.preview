@@ -118,10 +118,12 @@ define(function(require, module, exports) {
                     doc = session.previewTab.document;
                     
                     // Remove previous change listener
-                    doc.undoManager.off("change", session.changeListener);
+                    if (session.changeListener)
+                        doc.undoManager.off("change", session.changeListener);
                     
                     // Remove previous path listener
-                    doc.tab.off("path.set", session.renameListener);
+                    if (session.renameListener)
+                        doc.tab.off("path.set", session.renameListener);
                 }
                 
                 if (remove) return; // For cleanup
