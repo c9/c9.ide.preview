@@ -72,6 +72,8 @@ define(function(require, module, exports) {
                     doc.meta.$previewInited = true;
                 }
                 
+                if (state)
+                    setState(doc, state);
                 emit("documentLoad", { doc: doc, editor: editor, state: state });
             }
             

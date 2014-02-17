@@ -543,7 +543,7 @@ define(function(require, exports, module) {
                 session.inited   = true;
             
                 session.previewer = findPreviewer(session.initPath, (e.state || 0).previewer);
-                session.previewer.loadDocument(doc, plugin);
+                session.previewer.loadDocument(doc, plugin, e.state);
             
                 session.stack    = [];
                 session.position = -1;
