@@ -181,7 +181,7 @@ define(function(require, exports, module) {
             }, handle);
             
             // Import CSS
-            var css = require("text!./style.css");
+            var css = require("text!./preview.css");
             ui.insertCss(css, options.staticPrefix, handle);
             
             handleEmit.sticky("draw");
