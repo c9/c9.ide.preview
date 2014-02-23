@@ -33,6 +33,10 @@
     top : 0;
 }
 
+.previewbar .preview-label {
+    padding-top: 5px
+}
+
 .previewbar .c9-toolbarbutton-glossy.close .c9-icon {
     background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -66px;
 }
