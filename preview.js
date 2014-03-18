@@ -1,8 +1,8 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "Editor", "editors", "settings", "Menu", "ui", 
+        "Editor", "editors", "settings", "Menu", "ui", "proc", "c9",
         "preferences", "layout", "tabManager", "tree", "commands",
-        "dialog.error"
+        "dialog.error", "dialog.alert"
     ];
     main.provides = ["preview"];
     return main;
@@ -19,14 +19,17 @@ define(function(require, exports, module) {
         var Editor    = imports.Editor;
         var editors   = imports.editors;
         var ui        = imports.ui;
+        var c9        = imports.c9;
         var settings  = imports.settings;
         var commands  = imports.commands;
         var layout    = imports.layout;
         var tree      = imports.tree;
+        var proc      = imports.proc;
         var tabs      = imports.tabManager;
         var prefs     = imports.preferences;
         var Menu      = imports.Menu;
         var showError = imports["dialog.error"].show;
+        var showAlert = imports["dialog.alert"].show;
         
         var extensions = [];
         var counter    = 0;
@@ -44,15 +47,36 @@ define(function(require, exports, module) {
         
         function load(){
             var parent = layout.findParent({ name: "preview" });
-            var button = !options.hideButton && new ui.button({
-                skin     : "c9-toolbarbutton-glossy",
-                "class"  : "preview",
-                tooltip  : "Preview the current document",
-                caption  : "Preview",
-                disabled : true,
-                command  : "preview"
-            });
-            button && ui.insertByIndex(parent, button, 10, handle);
+            if (!options.hideButton) {
+                var submenu = new ui.menu({
+                    childNodes : [
+                        new ui.item({
+                            caption: "Preview Raw File Directly",
+                            onclick: function(){
+                                commands.exec("preview");
+                            }
+                        }),
+                        new ui.item({
+                            caption: "Preview Using a Web Server",
+                            onclick: function(){
+                                commands.exec("preview", null, {
+                                    server: true
+                                });
+                            }
+                        }),
+                    ]
+                });
+                
+                var button = new ui.button({
+                    skin     : "c9-toolbarbutton-glossy",
+                    "class"  : "preview",
+                    // tooltip  : "Preview the current document",
+                    caption  : "Preview",
+                    disabled : true,
+                    submenu  : submenu
+                });
+                button && ui.insertByIndex(parent, button, 10, handle);
+            }
             
             tabs.on("focus", function(e){
                 var disabled = typeof e.tab.path != "string";
@@ -97,7 +121,7 @@ define(function(require, exports, module) {
             }, handle);
             
             // Context menu for tree
-            var itemCtxTreePreview = new apf.item({
+            var itemCtxTreePreview = new ui.item({
                 match   : "file",
                 caption : "Preview",
                 isAvailable : function(){
@@ -115,17 +139,14 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name : "preview",
                 exec : function(editor, args){
-                    var path, tab, pane;
+                    var path, pane;
+                    var tab = tabs.focussedTab;
                     
-                    if (args.path)
-                        path = args.path;
-                    else {
-                        tab = tabs.focussedTab;
-                        if (!tab ||  (tab.editor.type === "preview" || !tab.path))
-                            return;
+                    function findPane(){
+                        if (!tab) return;
                         
                         // Find a good location to open preview side-by-side
-                        pane;
+                        var pane;
                         var otherPreview = search();
                         if (otherPreview && tab.pane != otherPreview) {
                             pane = otherPreview;
@@ -139,6 +160,49 @@ define(function(require, exports, module) {
                             }
                         }
                         
+                        return pane;
+                    }
+                    
+                    if (args.server) {
+                        pane = findPane();
+                        
+                        var hostname = options.local
+                            ? "localhost:8080"
+                            : c9.workspaceId.split("/").reverse().join(".") + ".c9.io";
+                        
+                        var cb = function(err, stderr, stdout){
+                            if (err && err.code != 1) 
+                                showError("Could not check if server is running.");
+                            else if (stderr || !stdout || !stdout.length) 
+                                warnNoServer(hostname);
+                            
+                            // Open Preview
+                            var path = (options.local ? "http" : "https") 
+                                + "://" + hostname;
+                            openPreview(path, pane, args && args.active);
+                        }
+                        
+                        if (options.local) {
+                            proc.execFile("lsof", { 
+                                args: ["-i", ":8080"] 
+                            }, cb);
+                        }
+                        else {
+                            proc.execFile("nc", { 
+                                args: ["-zv", hostname , "80"] 
+                            }, cb);
+                        }
+                        
+                        return;
+                    }
+                    else if (args.path) {
+                        path = args.path;
+                    }
+                    else {
+                        if (!tab ||  (tab.editor.type === "preview" || !tab.path))
+                            return;
+                        
+                        pane = findPane();
                         path = tab.path;
                     }
                     
@@ -251,6 +315,14 @@ define(function(require, exports, module) {
             
             id = settings.get("user/preview/@default");
             return previewers[id].plugin;
+        }
+        
+        function warnNoServer(hostname){
+            showAlert("Could not find a server running.",
+                "No server running at " + hostname,
+                "Please start your server at " + hostname + " to enable preview "
+                + "via this menu. Alternatively you can start a regular preview "
+                + "and change the hostname in the location bar.");
         }
         
         /**
