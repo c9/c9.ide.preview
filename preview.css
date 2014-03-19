@@ -8,6 +8,7 @@
 
 .previewbar .searchbox.tb_console .sbtb_middle{
     padding: 2px 7px 2px 7px;
+    padding-right: 7px !important;
 }
 
 .previewbar .locationbar{
