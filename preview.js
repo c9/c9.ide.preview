@@ -51,13 +51,13 @@ define(function(require, exports, module) {
                 var submenu = new ui.menu({
                     childNodes : [
                         new ui.item({
-                            caption: "Preview Raw File Directly",
+                            caption: "Live Preview Files",
                             onclick: function(){
                                 commands.exec("preview");
                             }
                         }),
                         new ui.item({
-                            caption: "Preview Using a Web Server",
+                            caption: "Preview with Web Server",
                             onclick: function(){
                                 commands.exec("preview", null, {
                                     server: true
