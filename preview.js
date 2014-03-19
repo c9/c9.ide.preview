@@ -663,9 +663,11 @@ define(function(require, exports, module) {
                 updateButtons();
             });
             plugin.on("documentUnload", function(e){
-                var session = e.doc.getSession();
-                session.previewer.navigate(e.doc, true); // Remove the listener
-                session.previewer.unloadDocument(e.doc);
+                var doc     = e.doc;
+                var session = doc.getSession();
+                
+                session.previewer.navigate(doc, true); // Remove the listener
+                session.previewer.unloadDocument(doc);
                 
                 if (session == currentSession) {
                     currentDocument = null;
