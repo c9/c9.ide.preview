@@ -11,8 +11,6 @@ define(function(require, exports, module) {
     // @todo - Add JSON Plugin
     // @todo - Add Coffee Plugin
     // @todo - Add Jade Plugin
-    // @todo - Add HTML/CSS/JS (auto-updating) Plugin
-    // @todo - Add additional functionality, such as popout (levels, in editor, pane, browser pane)
     // @todo - Fix the activate/deactivate events on session. They leak / are not cleaned up
     
     function main(options, imports, register) {
@@ -31,6 +29,8 @@ define(function(require, exports, module) {
         var showError = imports["dialog.error"].show;
         var showAlert = imports["dialog.alert"].show;
         
+        var basename  = require("path").basename;
+        
         var extensions = [];
         var counter    = 0;
         
@@ -43,14 +43,14 @@ define(function(require, exports, module) {
         var handleEmit = handle.getEmitter();
         
         var previewers = {};
-        var menu;
+        var menu, liveMenuItem;
         
         function load(){
             var parent = layout.findParent({ name: "preview" });
             if (!options.hideButton) {
                 var submenu = new ui.menu({
                     childNodes : [
-                        new ui.item({
+                        liveMenuItem = new ui.item({
                             caption: "Live Preview Files",
                             onclick: function(){
                                 commands.exec("preview");
@@ -64,7 +64,26 @@ define(function(require, exports, module) {
                                 });
                             }
                         }),
-                    ]
+                    ],
+                    "onprop.visible" : function(e){
+                        var tab     = tabs.focussedTab;
+                        var isKnown = false;
+                        
+                        if (tab) {
+                            var path = tab.path;
+                            for (var name in previewers) {
+                                if (previewers[name].matcher(path)) {
+                                    isKnown = true;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        liveMenuItem.setAttribute("caption", isKnown
+                            ? "Live Preview File (" + basename(path) + ")"
+                            : "Show Raw Content in Preview"
+                        );
+                    }
                 });
                 
                 var button = new ui.button({
