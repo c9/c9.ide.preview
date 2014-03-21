@@ -42,7 +42,7 @@ define(function(require, exports, module) {
                                            Preview, extensions);
         var handleEmit = handle.getEmitter();
         
-        var previewers = {};
+        var previewers     = {};
         var menu, liveMenuItem;
         
         function load(){
@@ -200,7 +200,7 @@ define(function(require, exports, module) {
                                             callback : done
                                         });
                                         return;
-                                    } 
+                                    }
                                 }
                                 
                                 warnNoServer(hostname);
