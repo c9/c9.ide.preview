@@ -77,12 +77,16 @@ define(function(require, exports, module) {
                                     break;
                                 }
                             }
+                            
+                            liveMenuItem.setAttribute("caption", isKnown
+                                ? "Live Preview File (" + basename(path) + ")"
+                                : "Show Raw Content in Preview"
+                            );
+                            liveMenuItem.enable();
                         }
-                        
-                        liveMenuItem.setAttribute("caption", isKnown
-                            ? "Live Preview File (" + basename(path) + ")"
-                            : "Show Raw Content in Preview"
-                        );
+                        else {
+                            liveMenuItem.disable();
+                        }
                     }
                 });
                 
@@ -96,16 +100,6 @@ define(function(require, exports, module) {
                 });
                 button && ui.insertByIndex(parent, button, 10, handle);
             }
-            
-            tabs.on("focus", function(e){
-                var disabled = typeof e.tab.path != "string";
-                button && button.setAttribute("disabled", disabled);
-            }, handle);
-            
-            tabs.on("tabDestroy", function(e){
-                if (e.last && button)
-                    button.disable();
-            }, handle);
             
             settings.on("read", function(e){
                 settings.setDefaults("user/preview", [
@@ -197,7 +191,9 @@ define(function(require, exports, module) {
                                 for (var name in json){ 
                                     if (json[name]["default"]) {
                                         commands.exec("run", null, {
-                                            callback : done
+                                            callback : function(proc){
+                                                proc.on("started", done);
+                                            }
                                         });
                                         return;
                                     }
