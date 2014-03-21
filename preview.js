@@ -183,8 +183,6 @@ define(function(require, exports, module) {
                     }
                     
                     if (args.server) {
-                        pane = findPane();
-                        
                         var hostname = options.local
                             ? "localhost:8080"
                             : c9.workspaceId.split("/").reverse().join(".") + ".c9.io";
@@ -192,13 +190,33 @@ define(function(require, exports, module) {
                         var cb = function(err, stderr, stdout){
                             if (err && err.code != 1) 
                                 showError("Could not check if server is running.");
-                            else if (stderr || !stdout || !stdout.length) 
+                            else if (stderr || !stdout || !stdout.length) {
+                                
+                                // Check for project run config
+                                var json = settings.getJson("project/run/configs") || {};
+                                for (var name in json){ 
+                                    if (json[name]["default"]) {
+                                        commands.exec("run", null, {
+                                            callback : done
+                                        });
+                                        return;
+                                    } 
+                                }
+                                
                                 warnNoServer(hostname);
+                            }
                             
-                            // Open Preview
-                            var path = (options.local ? "http" : "https") 
-                                + "://" + hostname;
-                            openPreview(path, pane, args && args.active);
+                            function done(){
+                                // Open Pane
+                                pane = findPane();
+                                
+                                // Open Preview
+                                var path = (options.local ? "http" : "https") 
+                                    + "://" + hostname;
+                                openPreview(path, pane, args && args.active);
+                            }
+                            
+                            done();
                         }
                         
                         if (options.local) {
