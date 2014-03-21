@@ -95,7 +95,6 @@ define(function(require, exports, module) {
                     "class"  : "preview",
                     // tooltip  : "Preview the current document",
                     caption  : "Preview",
-                    disabled : true,
                     submenu  : submenu
                 });
                 button && ui.insertByIndex(parent, button, 10, handle);
