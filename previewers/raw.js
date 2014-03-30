@@ -13,7 +13,7 @@ define(function(require, exports, module) {
             caption  : "Raw Content (UTF-8)", 
             index    : 100,
             selector : function(path){
-                return path.match(/(?:\.txt)$/);
+                return path && path.match(/(?:\.txt)$/);
             }
         });
         
