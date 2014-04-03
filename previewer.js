@@ -96,7 +96,8 @@ define(function(require, module, exports) {
             }
             
             function update(e){ 
-                if (e.doc == currentDocument.getSession().previewTab.document) {
+                if (currentDocument.getSession().previewTab
+                    && e.doc == currentDocument.getSession().previewTab.document) {
                     e.previewDocument = e.doc;
                     emit("update", e);
                 }
