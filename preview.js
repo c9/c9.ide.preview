@@ -31,7 +31,7 @@ define(function(require, exports, module) {
         
         var basename  = require("path").basename;
         
-        var extensions = [];
+        var extensions = ["pdf", "swf"];
         var counter    = 0;
         
         var previewUrl = options.previewUrl;
@@ -643,7 +643,7 @@ define(function(require, exports, module) {
                 setTheme({ theme: settings.get("user/general/@skin") || "dark" });
                 
                 // session.path = session.path || e.state.path;
-                session.initPath = session.path || e.state.path;
+                session.initPath = session.path || e.state.path || doc.tab.path;
                 session.inited   = true;
             
                 session.previewer = findPreviewer(session.initPath, (e.state || 0).previewer);
