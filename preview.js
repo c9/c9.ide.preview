@@ -238,6 +238,9 @@ define(function(require, exports, module) {
                         path = tab.path;
                     }
                     
+                    if (searchTab(path))
+                        return commands.exec("reloadpreview");
+                    
                     // Open Preview
                     openPreview(path, pane, args && args.active);
                 }
