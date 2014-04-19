@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "Editor", "editors", "settings", "Menu", "ui", "proc", "c9",
         "preferences", "layout", "tabManager", "tree", "commands",
-        "dialog.error", "dialog.alert"
+        "dialog.error", "dialog.alert", "save"
     ];
     main.provides = ["preview"];
     return main;
@@ -22,6 +22,7 @@ define(function(require, exports, module) {
         var commands  = imports.commands;
         var layout    = imports.layout;
         var tree      = imports.tree;
+        var save      = imports.save;
         var proc      = imports.proc;
         var tabs      = imports.tabManager;
         var prefs     = imports.preferences;
@@ -257,8 +258,14 @@ define(function(require, exports, module) {
                     var path = tabs.focussedTab && tabs.focussedTab.path;
                     var tab  = searchTab(path) || searchTab() || searchTab(-1);
                     if (tab) {
-                        // tabs.focusTab(tab);
-                        tab.editor.reload();
+                        if (tabs.focussedTab && tabs.focussedTab.document.changed) {
+                            save.save(tabs.focussedTab, null, function(){
+                                tab.editor.reload();
+                            });
+                        }
+                        else {
+                            tab.editor.reload();
+                        }
                     }
                 }
             }, handle);

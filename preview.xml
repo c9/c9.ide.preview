@@ -17,7 +17,7 @@
             background: @preview-chooser-background;
             height: 20px;
             border-radius: 0 2px 2px 0;
-            box-shadow: @textbox-box-shadow;
+            box-shadow: @preview-chooser-box-shadow;
             cursor: pointer;
             border: 1px solid @textbox-border-color;
             border-left : 0;
