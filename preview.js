@@ -1,8 +1,8 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "Editor", "editors", "settings", "Menu", "ui", "proc", "c9",
+        "Editor", "editors", "settings", "ui", "proc", "c9",
         "preferences", "layout", "tabManager", "tree", "commands",
-        "dialog.error", "dialog.alert", "save"
+        "dialog.error", "dialog.alert", "save", "Menu", "MenuItem", "Divider"
     ];
     main.provides = ["preview"];
     return main;
@@ -27,6 +27,8 @@ define(function(require, exports, module) {
         var tabs      = imports.tabManager;
         var prefs     = imports.preferences;
         var Menu      = imports.Menu;
+        var MenuItem  = imports.MenuItem;
+        var Divider   = imports.Divider;
         var showError = imports["dialog.error"].show;
         var showAlert = imports["dialog.alert"].show;
         
@@ -44,7 +46,7 @@ define(function(require, exports, module) {
         var handleEmit = handle.getEmitter();
         
         var previewers     = {};
-        var menu, liveMenuItem;
+        var menu, liveMenuItem, mnuSettings;
         
         function load(){
             var parent = layout.findParent({ name: "preview" });
@@ -147,6 +149,9 @@ define(function(require, exports, module) {
             tree.getElement("mnuCtxTree", function(mnuCtxTree) {
                 ui.insertByIndex(mnuCtxTree, itemCtxTreePreview, 160, handle);
             });
+            
+            // Context menu for settings
+            mnuSettings = new Menu({}, handle);
             
             // Command
             commands.addCommand({
@@ -404,6 +409,11 @@ define(function(require, exports, module) {
             get previewMenu(){ return menu; },
             
             /**
+             * 
+             */
+            get settingsMenu(){ return mnuSettings; },
+            
+            /**
              * Adds a previewer to the list of known previewers.
              * 
              * *N.B. The {@link Previewer} base class already calls this method.*
@@ -488,12 +498,13 @@ define(function(require, exports, module) {
                                     "class"    : "fakehbox aligncenter",
                                     childNodes : buttons
                                 }),
-                                new ui.hsplitbox({
+                                new ui.hbox({
                                     padding    : 3,
                                     childNodes : [
                                         new ui.bar({
                                             id         : "locationbar",
                                             "class"    : "locationbar",
+                                            flex       : 1,
                                             childNodes : [
                                                 new ui.textbox({
                                                     id          : "txtPreview",
@@ -517,6 +528,13 @@ define(function(require, exports, module) {
                                             tooltip : "Pop Out Into New Window",
                                             width   : "30",
                                             onclick : function(e){ popout(); }
+                                        }),
+                                        new ui.button({
+                                            skin    : "c9-toolbarbutton-glossy",
+                                            "class" : "settings",
+                                            tooltip : "Preview Settings",
+                                            width   : "30",
+                                            submenu : mnuSettings.aml
                                         })
                                     ]
                                 })
