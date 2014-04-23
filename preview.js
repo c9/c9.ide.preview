@@ -316,7 +316,7 @@ define(function(require, exports, module) {
                 if (tab.editorType == "preview" 
                   && (!path && tab.isActive()
                   || path && path != -1 
-                  && path == tab.document.getSession().path)) {
+                  && path == (tab.document.getSession() || {}).path)) {
                     pane = tab;
                     return false;
                 }
