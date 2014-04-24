@@ -184,7 +184,7 @@ define(function(require, exports, module) {
                     if (args.server) {
                         var hostname = options.local
                             ? "localhost:8080"
-                            : c9.workspaceId.split("/").reverse().join(".") + ".c9.io";
+                            : c9.workspaceId.split("/").reverse().join("-c9-") + ".c9.io";
                         
                         var cb = function(err, stderr, stdout){
                             if (err && err.code != 1) 
