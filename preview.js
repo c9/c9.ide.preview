@@ -140,7 +140,8 @@ define(function(require, exports, module) {
                 match   : "file",
                 caption : "Preview",
                 isAvailable : function(){
-                    return tree.selectedNode && !tree.selectedNode.isFolder;
+                    return tree.selectedNode && !tree.selectedNode.isFolder
+                        && (options.local || tree.selectedNode.path.charAt(0) != "~");
                 },
                 onclick : function(){
                     openPreview(tree.selected);
