@@ -14,45 +14,45 @@ define(function(require, exports, module) {
     // @todo - Fix the activate/deactivate events on session. They leak / are not cleaned up
     
     function main(options, imports, register) {
-        var Editor    = imports.Editor;
-        var editors   = imports.editors;
-        var ui        = imports.ui;
-        var c9        = imports.c9;
-        var settings  = imports.settings;
-        var commands  = imports.commands;
-        var layout    = imports.layout;
-        var tree      = imports.tree;
-        var save      = imports.save;
-        var proc      = imports.proc;
-        var tabs      = imports.tabManager;
-        var prefs     = imports.preferences;
-        var Menu      = imports.Menu;
-        var MenuItem  = imports.MenuItem;
-        var Divider   = imports.Divider;
+        var Editor = imports.Editor;
+        var editors = imports.editors;
+        var ui = imports.ui;
+        var c9 = imports.c9;
+        var settings = imports.settings;
+        var commands = imports.commands;
+        var layout = imports.layout;
+        var tree = imports.tree;
+        var save = imports.save;
+        var proc = imports.proc;
+        var tabs = imports.tabManager;
+        var prefs = imports.preferences;
+        var Menu = imports.Menu;
+        var MenuItem = imports.MenuItem;
+        var Divider = imports.Divider;
         var showError = imports["dialog.error"].show;
         var showAlert = imports["dialog.alert"].show;
         
-        var basename  = require("path").basename;
+        var basename = require("path").basename;
         
         var extensions = ["pdf", "swf"];
-        var counter    = 0;
+        var counter = 0;
         
         var previewUrl = options.previewUrl;
         
         /***** Initialization *****/
         
-        var handle     = editors.register("preview", "Preview", 
+        var handle = editors.register("preview", "Preview", 
                                            Preview, extensions);
         var handleEmit = handle.getEmitter();
         
-        var previewers     = {};
+        var previewers = {};
         var menu, liveMenuItem, mnuSettings;
         
         function load(){
             var parent = layout.findParent({ name: "preview" });
             if (!options.hideButton) {
                 var submenu = new ui.menu({
-                    childNodes : [
+                    childNodes: [
                         liveMenuItem = new ui.item({
                             caption: "Live Preview Files",
                             onclick: function(){
@@ -68,8 +68,8 @@ define(function(require, exports, module) {
                             }
                         }),
                     ],
-                    "onprop.visible" : function(e){
-                        var tab     = tabs.focussedTab;
+                    "onprop.visible" : function(e) {
+                        var tab = tabs.focussedTab;
                         var isKnown = false;
                         
                         if (tab) {
@@ -94,16 +94,16 @@ define(function(require, exports, module) {
                 });
                 
                 var button = new ui.button({
-                    skin     : "c9-toolbarbutton-glossy",
+                    skin: "c9-toolbarbutton-glossy",
                     "class"  : "preview",
                     // tooltip  : "Preview the current document",
-                    caption  : "Preview",
-                    submenu  : submenu
+                    caption: "Preview",
+                    submenu: submenu
                 });
                 button && ui.insertByIndex(parent, button, 10, handle);
             }
             
-            settings.on("read", function(e){
+            settings.on("read", function(e) {
                 settings.setDefaults("user/preview", [
                     ["running_app", "false"],
                     ["default", options.defaultPreviewer || "raw"]
@@ -113,19 +113,19 @@ define(function(require, exports, module) {
             // Preferences
             prefs.add({
                 "Run" : {
-                    position : 600,
+                    position: 600,
                     "Preview" : {
-                        position : 200,
+                        position: 200,
                         "Preview Running Apps" : {
-                            type : "checkbox",
-                            path : "user/preview/@running_app",
-                            position : 4000
+                            type: "checkbox",
+                            path: "user/preview/@running_app",
+                            position: 4000
                         },
                         "Default Previewer" : {
-                            type : "dropdown",
-                            path : "user/preview/@default",
-                            position : 5000,
-                            items : [
+                            type: "dropdown",
+                            path: "user/preview/@default",
+                            position: 5000,
+                            items: [
                                 // @todo this should come from plugin api
                                 { caption: "Raw", value: "preview.raw" },
                                 { caption: "Browser", value: "preview.browser" }
@@ -137,13 +137,13 @@ define(function(require, exports, module) {
             
             // Context menu for tree
             var itemCtxTreePreview = new ui.item({
-                match   : "file",
-                caption : "Preview",
-                isAvailable : function(){
+                match: "file",
+                caption: "Preview",
+                isAvailable: function(){
                     return tree.selectedNode && !tree.selectedNode.isFolder
                         && (options.local || tree.selectedNode.path.charAt(0) != "~");
                 },
-                onclick : function(){
+                onclick: function(){
                     openPreview(tree.selected);
                 }
             });
@@ -156,8 +156,8 @@ define(function(require, exports, module) {
             
             // Command
             commands.addCommand({
-                name : "preview",
-                exec : function(editor, args){
+                name: "preview",
+                exec: function(editor, args) {
                     var path, pane;
                     var tab = tabs.focussedTab;
                     
@@ -187,17 +187,17 @@ define(function(require, exports, module) {
                             ? "localhost:8080"
                             : c9.workspaceId.split("/").reverse().join("-c9-") + ".c9.io";
                         
-                        var cb = function(err, stderr, stdout){
+                        var cb = function(err, stderr, stdout) {
                             if (err && err.code != 1) 
                                 showError("Could not check if server is running.");
                             else if (stderr || !stdout || !stdout.length) {
                                 
                                 // Check for project run config
                                 var json = settings.getJson("project/run/configs") || {};
-                                for (var name in json){ 
+                                for (var name in json) { 
                                     if (json[name]["default"]) {
                                         commands.exec("run", null, {
-                                            callback : function(proc){
+                                            callback: function(proc) {
                                                 proc.on("started", done);
                                             }
                                         });
@@ -253,16 +253,16 @@ define(function(require, exports, module) {
                 }
             }, handle);
             commands.addCommand({
-                name    : "reloadpreview",
-                bindKey : { mac: "Command-Enter", win: "Ctrl-Enter" },
-                isAvailable : function(){
+                name: "reloadpreview",
+                bindKey: { mac: "Command-Enter", win: "Ctrl-Enter" },
+                isAvailable: function(){
                     var path = tabs.focussedTab && tabs.focussedTab.path;
-                    var tab  = searchTab(path) || searchTab() || searchTab(-1);
+                    var tab = searchTab(path) || searchTab() || searchTab(-1);
                     return tab ? true : false;
                 },
-                exec : function(){
+                exec: function(){
                     var path = tabs.focussedTab && tabs.focussedTab.path;
-                    var tab  = searchTab(path) || searchTab() || searchTab(-1);
+                    var tab = searchTab(path) || searchTab() || searchTab(-1);
                     if (tab) {
                         if (tabs.focussedTab && tabs.focussedTab.document.changed) {
                             save.save(tabs.focussedTab, null, function(){
@@ -286,8 +286,8 @@ define(function(require, exports, module) {
             
             // Import Skin
             ui.insertSkin({
-                name         : "previewskin",
-                data         : require("text!./preview.xml"),
+                name: "previewskin",
+                data: require("text!./preview.xml"),
                 "media-path" : options.staticPrefix + "/images/",
                 "icon-path"  : options.staticPrefix + "/images/"
             }, handle);
@@ -302,7 +302,7 @@ define(function(require, exports, module) {
         //Search through pages
         function search(){
             var pane;
-            tabs.getTabs().every(function(tab){
+            tabs.getTabs().every(function(tab) {
                 if (tab.editorType == "preview") {
                     pane = tab.pane;
                     return false;
@@ -311,9 +311,9 @@ define(function(require, exports, module) {
             });
             return pane;
         }
-        function searchTab(path){
+        function searchTab(path) {
             var pane;
-            tabs.getTabs().every(function(tab){
+            tabs.getTabs().every(function(tab) {
                 if (tab.editorType == "preview" 
                   && (!path && tab.isActive()
                   || path && path != -1 
@@ -326,33 +326,33 @@ define(function(require, exports, module) {
             return pane;
         }
         
-        function registerPlugin(plugin, matcher){
+        function registerPlugin(plugin, matcher) {
             previewers[plugin.name] = {
-                plugin  : plugin,
-                matcher : matcher
+                plugin: plugin,
+                matcher: matcher
             };
         }
         
-        function unregisterPlugin(plugin){
+        function unregisterPlugin(plugin) {
             delete previewers[plugin.name];
         }
         
-        function openPreview(path, pane, active){
+        function openPreview(path, pane, active) {
             tabs.open({
-                name       : "preview-" + path,
-                editorType : "preview",
-                pane       : pane,
-                active     : active !== false,
-                document   : {
-                    title : "[P] " + path,
-                    preview : {
-                        path : path
+                name: "preview-" + path,
+                editorType: "preview",
+                pane: pane,
+                active: active !== false,
+                document: {
+                    title: "[P] " + path,
+                    preview: {
+                        path: path
                     }
                 }
             }, function(){});
         }
         
-        function findPreviewer(path, id){
+        function findPreviewer(path, id) {
             if (id) return previewers[id].plugin;
             else if (path) {
                 for (id in previewers) {
@@ -365,7 +365,7 @@ define(function(require, exports, module) {
             return previewers[id].plugin;
         }
         
-        function warnNoServer(hostname){
+        function warnNoServer(hostname) {
             showAlert("Could not find a server running.",
                 "No server running at " + hostname,
                 "Please start your server at " + hostname + " to enable preview "
@@ -422,7 +422,7 @@ define(function(require, exports, module) {
              * @param {Previewer} previewer  the previewer to register.
              * @private
              */
-            register : registerPlugin,
+            register: registerPlugin,
             
             /**
              * Removes a previewer from the list of known previewers. 
@@ -432,7 +432,7 @@ define(function(require, exports, module) {
              * @param {Previewer} previewer  the previewer to unregister.
              * @private
              */
-            unregister : unregisterPlugin,
+            unregister: unregisterPlugin,
             
             /**
              * Retrieves a previewer based on a file path or id.
@@ -440,126 +440,126 @@ define(function(require, exports, module) {
              * @param {String} id    The unique name of the previewer to retrieve
              * @return {Previewer}
              */
-            findPreviewer : findPreviewer,
+            findPreviewer: findPreviewer,
         });
         
         handle.on("load", load);
         
         function Preview(){
             var plugin = new Editor("Ajax.org", main.consumes, extensions);
-            //var emit   = plugin.getEmitter();
+            //var emit = plugin.getEmitter();
             
             var currentDocument, currentSession;
             var container, txtPreview, btnMode, btnBack, btnForward;
             
-            plugin.on("draw", function(e){
+            plugin.on("draw", function(e) {
                 drawHandle();
                 
                 var buttons = options.local ? [
                     btnBack = new ui.button({
-                        skin     : "c9-toolbarbutton-glossy",
+                        skin: "c9-toolbarbutton-glossy",
                         "class"  : "goback",
-                        tooltip  : "Back",
-                        width    : "29",
-                        disabled : true,
-                        onclick  : function(e){ goBack(); }
+                        tooltip: "Back",
+                        width: "29",
+                        disabled: true,
+                        onclick: function(e){ goBack(); }
                     }),
                     btnForward = new ui.button({
-                        skin     : "c9-toolbarbutton-glossy",
+                        skin: "c9-toolbarbutton-glossy",
                         "class"  : "goforward",
-                        tooltip  : "Forward",
-                        disabled : true,
-                        width    : "29",
-                        onclick  : function(e){ goForward(); }
+                        tooltip: "Forward",
+                        disabled: true,
+                        width: "29",
+                        onclick: function(e){ goForward(); }
                     })
                 ] : [];
                 
                 buttons.push(
                     new ui.button({
-                        skin    : "c9-toolbarbutton-glossy",
+                        skin: "c9-toolbarbutton-glossy",
                         "class" : "refresh",
-                        tooltip : "Refresh",
-                        width   : "29",
-                        onclick : function(e){ reload(); }
+                        tooltip: "Refresh",
+                        width: "29",
+                        onclick: function(e){ reload(); }
                     })
                 );
                 
                 // Create UI elements
                 var bar = e.tab.appendChild(new ui.vsplitbox({
-                    anchors    : "0 0 0 0",
-                    childNodes : [
+                    anchors: "0 0 0 0",
+                    childNodes: [
                         new ui.hsplitbox({
                             "class"    : "toolbar-top previewbar",
-                            height     : 35,
-                            edge       : "4",
-                            padding    : 3,
-                            childNodes : [
+                            height: 35,
+                            edge: "4",
+                            padding: 3,
+                            childNodes: [
                                 new ui.bar({
-                                    width      : options.local ? 87 : 29,
+                                    width: options.local ? 87 : 29,
                                     "class"    : "fakehbox aligncenter",
-                                    childNodes : buttons
+                                    childNodes: buttons
                                 }),
                                 new ui.hbox({
-                                    padding    : 3,
-                                    childNodes : [
+                                    padding: 3,
+                                    childNodes: [
                                         new ui.bar({
-                                            id         : "locationbar",
+                                            id: "locationbar",
                                             "class"    : "locationbar",
-                                            flex       : 1,
-                                            childNodes : [
+                                            flex: 1,
+                                            childNodes: [
                                                 new ui.textbox({
-                                                    id          : "txtPreview",
-                                                    class       : "ace_searchbox tb_textbox searchbox searchTxt tb_console",
-                                                    value       : "",
-                                                    focusselect : true
+                                                    id: "txtPreview",
+                                                    class: "ace_searchbox tb_textbox searchbox searchTxt tb_console",
+                                                    value: "",
+                                                    focusselect: true
                                                 }),
                                                 new ui.button({
-                                                    id      : "btnMode",
-                                                    submenu : menu.aml,
-                                                    icon    : "page_white.png",
-                                                    skin    : "btn-preview-choice",
-                                                    skinset : "previewskin",
-                                                    caption : "browser"
+                                                    id: "btnMode",
+                                                    submenu: menu.aml,
+                                                    icon: "page_white.png",
+                                                    skin: "btn-preview-choice",
+                                                    skinset: "previewskin",
+                                                    caption: "browser"
                                                 })
                                             ]
                                         }),
                                         new ui.button({
-                                            skin    : "c9-toolbarbutton-glossy",
+                                            skin: "c9-toolbarbutton-glossy",
                                             "class" : "popout",
-                                            tooltip : "Pop Out Into New Window",
-                                            width   : "30",
-                                            onclick : function(e){ popout(); }
+                                            tooltip: "Pop Out Into New Window",
+                                            width: "30",
+                                            onclick: function(e){ popout(); }
                                         }),
                                         new ui.button({
-                                            skin    : "c9-toolbarbutton-glossy",
+                                            skin: "c9-toolbarbutton-glossy",
                                             "class" : "settings",
-                                            tooltip : "Preview Settings",
-                                            width   : "30",
-                                            submenu : mnuSettings.aml
+                                            tooltip: "Preview Settings",
+                                            width: "30",
+                                            submenu: mnuSettings.aml
                                         })
                                     ]
                                 })
                             ]
                         }),
                         new ui.bar({
-                            id : "container"
+                            id: "container"
                         })
                     ]
                 }));
                 plugin.addElement(bar);
                 
-                btnMode    = plugin.getElement("btnMode");
+                btnMode = plugin.getElement("btnMode");
                 txtPreview = plugin.getElement("txtPreview");
-                container  = plugin.getElement("container").$int;
+                container = plugin.getElement("container").$int;
                 
-                txtPreview.$input.onkeydown = function(e){
+                txtPreview.$input.onkeydown = function(e) {
                     if (e.keyCode == 13) {
                         currentSession.previewer.navigate({ url: this.value });
                         txtPreview.blur();
                     }
                 };
                 
-                txtPreview.addEventListener("contextmenu", function(e){
+                txtPreview.addEventListener("contextmenu", function(e) {
                     e.cancelBubble = true;
                     return true;
                 });
@@ -577,7 +577,7 @@ define(function(require, exports, module) {
                 currentSession.previewer.popout();
             }
             
-            function setPreviewer(id){
+            function setPreviewer(id) {
                 var session = currentSession;
                 if (session) {
                     // Check if previewer is available
@@ -588,7 +588,7 @@ define(function(require, exports, module) {
                     if (session.previewer.name == id)
                         return;
                     
-                    var doc   = currentDocument;
+                    var doc = currentDocument;
                     var state = plugin.getState(doc);
                     
                     // Unload the previous previewer
@@ -621,7 +621,7 @@ define(function(require, exports, module) {
                 updateButtons();
             }
             
-            function setLocation(value, visualOnly){
+            function setLocation(value, visualOnly) {
                 if (!value || !currentSession) return;
                 
                 if (!visualOnly) {
@@ -651,9 +651,9 @@ define(function(require, exports, module) {
             
             plugin.on("load", function(){
             });
-            plugin.on("documentLoad", function(e){
-                var doc     = e.doc;
-                var tab     = doc.tab;
+            plugin.on("documentLoad", function(e) {
+                var doc = e.doc;
+                var tab = doc.tab;
                 var session = doc.getSession();
                 
                 if (session.inited) {
@@ -661,7 +661,7 @@ define(function(require, exports, module) {
                     return;
                 }
                 
-                function setTheme(e){
+                function setTheme(e) {
                     var isDark = e.theme == "dark";
                     tab.backgroundColor = isDark ? "#303130" : "#d6d5d5";
                     if (isDark) tab.className.add("dark");
@@ -673,14 +673,14 @@ define(function(require, exports, module) {
                 
                 // session.path = session.path || e.state.path;
                 session.initPath = session.path || e.state.path || doc.tab.path;
-                session.inited   = true;
+                session.inited = true;
             
                 session.previewer = findPreviewer(session.initPath, (e.state || 0).previewer);
                 session.previewer.loadDocument(doc, plugin, e.state);
             
-                session.stack    = [];
+                session.stack = [];
                 session.position = -1;
-                session.add = function(value){
+                session.add = function(value) {
                     session.stack.splice(session.position + 1);
                     session.stack.push(value);
                     session.position++;
@@ -698,19 +698,19 @@ define(function(require, exports, module) {
                     return session.stack[session.position];
                 };
             
-                tabs.on("open", function(e){
+                tabs.on("open", function(e) {
                     if (!session.previewTab && e.options.path == session.path) {
                         session.previewTab = e.tab;
                         session.previewer.navigate({ url : session.path, tab: e.tab });
                     }
                 }, doc);
             });
-            plugin.on("documentActivate", function(e){
+            plugin.on("documentActivate", function(e) {
                 if (currentDocument)
                     currentSession.previewer.deactivateDocument(currentDocument);
                 
                 currentDocument = e.doc;
-                currentSession  = e.doc.getSession();
+                currentSession = e.doc.getSession();
                 
                 var previewer = currentSession.previewer;
                 previewer.activateDocument(currentDocument);
@@ -723,8 +723,8 @@ define(function(require, exports, module) {
                 
                 updateButtons();
             });
-            plugin.on("documentUnload", function(e){
-                var doc     = e.doc;
+            plugin.on("documentUnload", function(e) {
+                var doc = e.doc;
                 var session = doc.getSession();
                 
                 session.previewer.navigate(doc, true); // Remove the listener
@@ -732,34 +732,34 @@ define(function(require, exports, module) {
                 
                 if (session == currentSession) {
                     currentDocument = null;
-                    currentSession  = null;
+                    currentSession = null;
                 }
             });
-            plugin.on("getState", function(e){
+            plugin.on("getState", function(e) {
                 var state = e.state;
                 var session = e.doc.getSession();
                 
-                state.path      = session.path;
+                state.path = session.path;
                 state.previewer = session.previewer.name;
                 
                 session.previewer.getState(e.doc, state);
             });
-            plugin.on("setState", function(e){
-                var state   = e.state;
+            plugin.on("setState", function(e) {
+                var state = e.state;
                 var session = e.doc.getSession();
                 
-                session.path      = state.path;
+                session.path = state.path;
                 // session.previewer = state.previewer;
                 
                 session.previewer.setState(e.doc, state);
             });
             plugin.on("clear", function(){
             });
-            plugin.on("focus", function(e){
+            plugin.on("focus", function(e) {
                 if (currentSession)
                     currentSession.previewer.focus(e);
             });
-            plugin.on("blur", function(e){
+            plugin.on("blur", function(e) {
                 if (currentSession)
                     currentSession.previewer.blur(e);
             });
@@ -819,25 +819,25 @@ define(function(require, exports, module) {
                 /**
                  * Trigger a reload of the content displayed in the previewer.
                  */
-                reload : reload,
+                reload: reload,
                 
                 /**
                  * Pop the previewer out of the Cloud9 tab into a new window.
                  * @ignore Not implemented
                  */
-                popout : popout,
+                popout: popout,
                 
                 /**
                  * Change to a different previewer for the displayed content.
                  * @param {String} name  The name of the previewer to show (e.g. "previewer.browser").
                  */
-                setPreviewer : setPreviewer,
+                setPreviewer: setPreviewer,
                 
                 /**
                  * Set the value of the location bar of the preview pane.
                  * @param {String} value  The value of the location bar.
                  */
-                setLocation : setLocation,
+                setLocation: setLocation,
                 
                 /**
                  * Set the icon and label of the button in the preview bar that
@@ -845,7 +845,7 @@ define(function(require, exports, module) {
                  * @param {String} caption  The caption of the button.
                  * @param {String} icon     The icon of the button.
                  */
-                setButtonStyle : setButtonStyle
+                setButtonStyle: setButtonStyle
             });
             
             plugin.load("preview" + counter++);

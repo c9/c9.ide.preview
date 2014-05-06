@@ -6,24 +6,24 @@ define(function(require, module, exports) {
     return main;
 
     function main(options, imports, register) {
-        var Plugin    = imports.Plugin;
-        var preview   = imports.preview;
-        var Menu      = imports.Menu;
-        var MenuItem  = imports.MenuItem;
-        var Divider   = imports.Divider;
-        var tabs      = imports.tabManager;
+        var Plugin = imports.Plugin;
+        var preview = imports.preview;
+        var Menu = imports.Menu;
+        var MenuItem = imports.MenuItem;
+        var Divider = imports.Divider;
+        var tabs = imports.tabManager;
         
-        function Previewer(developer, deps, options){
+        function Previewer(developer, deps, options) {
             var plugin = new Plugin(developer, deps);
-            var emit   = plugin.getEmitter();
+            var emit = plugin.getEmitter();
             emit.setMaxListeners(1000);
             
-            var caption  = options.caption;
-            var onclick  = options.onclick;
-            var submenu  = options.submenu;
-            var divider  = options.divider;
+            var caption = options.caption;
+            var onclick = options.onclick;
+            var submenu = options.submenu;
+            var divider = options.divider;
             var selector = options.selector || function(){ return false; };
-            var index    = options.index || 100;
+            var index = options.index || 100;
             var menu, item, div;
             
             var currentSession, currentDocument;
@@ -34,8 +34,8 @@ define(function(require, module, exports) {
                 var rootMenu = preview.previewMenu;
                 
                 item = rootMenu.append(new MenuItem({ 
-                    caption  : caption, 
-                    position : index
+                    caption: caption, 
+                    position: index
                 }));
                 
                 if (onclick || !submenu)
@@ -52,7 +52,7 @@ define(function(require, module, exports) {
                 if (divider)
                     div = rootMenu.append(new Divider({ position: index + 10 }));
                 
-                tabs.on("focusSync", function(e){
+                tabs.on("focusSync", function(e) {
                     if (e.tab.editorType == "preview") {
                         var session = e.tab.document.getSession();
                         if (session.previewer == plugin) {
@@ -66,7 +66,7 @@ define(function(require, module, exports) {
             
             /***** Methods *****/
             
-            function loadDocument(doc, editor, state){
+            function loadDocument(doc, editor, state) {
                 if (!doc.meta.$previewInited) {
                     doc.addOther(function(){ navigate({ doc: doc }, true); });
                     doc.meta.$previewInited = true;
@@ -77,25 +77,25 @@ define(function(require, module, exports) {
                 emit("documentLoad", { doc: doc, editor: editor, state: state });
             }
             
-            function unloadDocument(doc){
+            function unloadDocument(doc) {
                 emit("documentUnload", { doc: doc });
             }
             
-            function activateDocument(doc){
+            function activateDocument(doc) {
                 currentDocument = doc;
-                currentSession  = doc.getSession();
+                currentSession = doc.getSession();
                 
                 emit("documentActivate", { doc: currentDocument });
             }
             
-            function deactivateDocument(doc){
+            function deactivateDocument(doc) {
                 currentDocument = null;
-                currentSession  = null;
+                currentSession = null;
                 
                 emit("documentDeactivate", { doc: doc });
             }
             
-            function update(e){ 
+            function update(e) { 
                 if (currentDocument.getSession().previewTab
                     && e.doc == currentDocument.getSession().previewTab.document) {
                     e.previewDocument = e.doc;
@@ -111,7 +111,7 @@ define(function(require, module, exports) {
                 emit("popout");
             }
             
-            function navigate(e, remove){ 
+            function navigate(e, remove) { 
                 var session = e && e.doc ? e.doc.getSession() : currentSession;
                 var doc;
                 
@@ -130,16 +130,16 @@ define(function(require, module, exports) {
                 if (remove) return; // For cleanup
                 
                 // Find new tab
-                session.path           = e.url;
-                session.previewTab     = e.tab = tabs.findTab(session.path);
+                session.path = e.url;
+                session.previewTab = e.tab = tabs.findTab(session.path);
                 session.changeListener = function(){
                     update({
-                        doc   : doc,
-                        saved : session.previewTab
+                        doc: doc,
+                        saved: session.previewTab
                             .document.undoManager.isAtBookmark()
                     });
                 };
-                session.renameListener = function(e){
+                session.renameListener = function(e) {
                     navigate({ url: e.path, doc: doc });
                 }
                 
@@ -158,26 +158,26 @@ define(function(require, module, exports) {
                     emit("navigate", e); 
             };
             
-            function getState(doc, state){
+            function getState(doc, state) {
                 emit("getState", {
-                    doc    : doc,
-                    state  : state
+                    doc: doc,
+                    state: state
                 });
                 
                 return state;
             }
             
-            function setState(doc, state){
+            function setState(doc, state) {
                 emit("setState", {
-                    doc   : doc,
-                    state : state || {}
+                    doc: doc,
+                    state: state || {}
                 });
             }
             
-            function focus(regain, lost){
+            function focus(regain, lost) {
                 emit("focus", {
-                    regain : regain || false,
-                    lost   : lost || false
+                    regain: regain || false,
+                    lost: lost || false
                 });
             }
             
@@ -225,30 +225,30 @@ define(function(require, module, exports) {
              *         caption  : "HTML",
              *         index    : 10,
              *         divider  : true,
-             *         selector : function(path){
+             *         selector : function(path) {
              *             return path.match(/(?:\.html|\.htm|\.xhtml)$|^https?\:\/\//);
              *         }
              *     });
              * 
-             *     plugin.on("documentLoad", function(e){
+             *     plugin.on("documentLoad", function(e) {
              *         var session = e.doc.getSession();
              *         if (!session.iframe)
              *             session.iframe = createIframe();
              *         e.editor.container.appendChild(session.iframe);
              *     });
              *     
-             *     plugin.on("documentActivate", function(e){
+             *     plugin.on("documentActivate", function(e) {
              *         var session = e.doc.getSession();
              *         session.iframe.style.display = "block";
              *     });
              *     
-             *     plugin.on("documentDeactivate", function(e){
+             *     plugin.on("documentDeactivate", function(e) {
              *         var session = e.doc.getSession();
              *         session.iframe.style.display = "none";
              *     });
              *     
-             *     plugin.on("update", function(e){
-             *         var value   = e.previewDocument.value;
+             *     plugin.on("update", function(e) {
+             *         var value = e.previewDocument.value;
              *         var session = e.doc.getSession();
              *         updateContent(session.iframe, value);
              *     });
@@ -307,7 +307,7 @@ define(function(require, module, exports) {
                  */
                 get activeSession(){ return currentSession; },
                 
-                _events : [
+                _events: [
                     /** 
                      * Fires when a document is loaded into the previewer.
                      * This event is also fired when this document is attached to another
@@ -446,64 +446,64 @@ define(function(require, module, exports) {
                  * Unloads the document from this editor.
                  * @private
                  */
-                unloadDocument : unloadDocument,
+                unloadDocument: unloadDocument,
                 
                 /**
                  * Loads the document in this editor to be displayed.
                  * @param {Document} doc the document to display
                  */
-                loadDocument : loadDocument,
+                loadDocument: loadDocument,
                 
                 /**
                  * Sets the focus to this editor
                  */
-                focus : focus,
+                focus: focus,
 
                 /**
                  * Removes the focus from this editor
                  */
-                blur : blur,
+                blur: blur,
                 
                 /**
                  * Sets the document as the active document.
                  * @param {Document} doc the document to activate
                  */
-                activateDocument : activateDocument,
+                activateDocument: activateDocument,
                 
                 /**
                  * Clears the document as the active document.
                  * @param {Document} doc the document to deactivate
                  */
-                deactivateDocument : deactivateDocument,
+                deactivateDocument: deactivateDocument,
                 
                 /**
                  * Reload the preview of the active document.
                  */
-                reload : reload,
+                reload: reload,
                 
                 /**
                  * Pop the preview out into it's own window.
                  */
-                popout : popout,
+                popout: popout,
                 
                 /**
                  * @ignore
                  */
-                navigate : navigate,
+                navigate: navigate,
                 
                 /**
                  * Retrieves the state of a previewer
                  * @param {Document} doc the document for which to return the state
                  * @return {Object}
                  */
-                getState : getState, 
+                getState: getState, 
                 
                 /**
                  * Sets the state of this previewer
                  * @param {Document} doc the document for which to set the state
                  * @param {Object} state the state of the document for this editor
                  */
-                setState : setState
+                setState: setState
             });
             
             return plugin;

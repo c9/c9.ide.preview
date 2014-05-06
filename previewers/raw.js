@@ -5,14 +5,14 @@ define(function(require, exports, module) {
 
     function main(options, imports, register) {
         var Previewer = imports.Previewer;
-        var ui        = imports.ui;
+        var ui = imports.ui;
         
         /***** Initialization *****/
         
         var plugin = new Previewer("Ajax.org", main.consumes, {
-            caption  : "Raw Content (UTF-8)", 
-            index    : 100,
-            selector : function(path){
+            caption: "Raw Content (UTF-8)", 
+            index: 100,
+            selector: function(path) {
                 return path && path.match(/(?:\.txt)$/);
             }
         });
@@ -29,7 +29,7 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function update(e){
+        function update(e) {
             var session = plugin.activeSession;
             session.pre.innerHTML = session.previewTab
                 ? (session.previewTab.document.value || "").replace(/</g, "&lt;")
@@ -41,10 +41,10 @@ define(function(require, exports, module) {
         plugin.on("load", function(){
             
         });
-        plugin.on("documentLoad", function(e){
-            var doc     = e.doc;
+        plugin.on("documentLoad", function(e) {
+            var doc = e.doc;
             var session = doc.getSession();
-            var editor  = e.editor;
+            var editor = e.editor;
             
             draw();
             
@@ -52,36 +52,36 @@ define(function(require, exports, module) {
             pre.className = "rawview";
             
             // Append PRE element
-            session.pre    = editor.container.appendChild(pre);
+            session.pre = editor.container.appendChild(pre);
             session.editor = editor;
             
             // Hack to get text selection enabled
             var container = editor.getElement("container");
             container.$isTextInput = function(){ return true };
-            container.disabled     = false;
+            container.disabled = false;
         });
-        plugin.on("documentUnload", function(e){
-            var doc     = e.doc;
+        plugin.on("documentUnload", function(e) {
+            var doc = e.doc;
             var pre = doc.getSession().pre;
             pre.parentNode.removeChild(pre);
         });
-        plugin.on("documentActivate", function(e){
+        plugin.on("documentActivate", function(e) {
             var session = e.doc.getSession();
             
             session.pre.style.display = "block";
             session.editor.setLocation(session.path);
             session.editor.setButtonStyle("Raw Content (UTF-8)", "page_white.png");
         });
-        plugin.on("documentDeactivate", function(e){
+        plugin.on("documentDeactivate", function(e) {
             var session = e.doc.getSession();
             session.pre.style.display = "none";
         });
-        plugin.on("navigate", function(e){
-            var tab     = plugin.activeDocument.tab;
+        plugin.on("navigate", function(e) {
+            var tab = plugin.activeDocument.tab;
             var session = plugin.activeSession;
             
-            tab.title    = 
-            tab.tooltip  = "[R] " + e.url;
+            tab.title = 
+            tab.tooltip = "[R] " + e.url;
             session.editor.setLocation(e.url);
             
             update();
@@ -95,7 +95,7 @@ define(function(require, exports, module) {
             
         });
         plugin.on("unload", function(){
-            drawn  = false;
+            drawn = false;
         });
         
         /***** Register and define API *****/
