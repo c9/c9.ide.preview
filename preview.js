@@ -252,6 +252,7 @@ define(function(require, exports, module) {
                     openPreview(path, pane, args && args.active);
                 }
             }, handle);
+            
             commands.addCommand({
                 name: "reloadpreview",
                 bindKey: { mac: "Command-Enter", win: "Ctrl-Enter" },
