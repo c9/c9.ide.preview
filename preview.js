@@ -52,22 +52,6 @@ define(function(require, exports, module) {
             var parent = layout.findParent({ name: "preview" });
             if (!options.hideButton) {
                 var submenu = new ui.menu({
-                    childNodes: [
-                        liveMenuItem = new ui.item({
-                            caption: "Live Preview Files",
-                            onclick: function(){
-                                commands.exec("preview");
-                            }
-                        }),
-                        new ui.item({
-                            caption: "Preview with Web Server",
-                            onclick: function(){
-                                commands.exec("preview", null, {
-                                    server: true
-                                });
-                            }
-                        }),
-                    ],
                     "onprop.visible" : function(e) {
                         var tab = tabs.focussedTab;
                         var isKnown = false;
@@ -103,6 +87,16 @@ define(function(require, exports, module) {
                 button && ui.insertByIndex(parent, button, 10, handle);
                 
                 menus.addItemByPath("File/Preview/", submenu, 1310, handle);
+                liveMenuItem = menus.addItemByPath("File/Preview/Live Preview Files",
+                    new ui.item({
+                        onclick: function(){ commands.exec("preview"); }
+                    }), 100, handle);
+                menus.addItemByPath("File/Preview/Preview with Web Server", 
+                    new ui.item({
+                        onclick: function(){
+                            commands.exec("preview", null, { server: true });
+                        }
+                    }), 200, handle);
             }
             
             settings.on("read", function(e) {
