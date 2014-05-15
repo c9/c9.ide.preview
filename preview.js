@@ -87,10 +87,11 @@ define(function(require, exports, module) {
                 button && ui.insertByIndex(parent, button, 10, handle);
                 
                 menus.addItemByPath("File/Preview/", submenu, 1310, handle);
-                liveMenuItem = menus.addItemByPath("File/Preview/Live Preview Files",
-                    new ui.item({
-                        onclick: function(){ commands.exec("preview"); }
-                    }), 100, handle);
+                liveMenuItem = new ui.item({
+                    onclick: function(){ commands.exec("preview"); }
+                });
+                menus.addItemByPath("File/Preview/Live Preview Files",
+                    liveMenuItem, 100, handle);
                 menus.addItemByPath("File/Preview/Preview with Web Server", 
                     new ui.item({
                         onclick: function(){
