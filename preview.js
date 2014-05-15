@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "Editor", "editors", "settings", "ui", "proc", "c9",
-        "preferences", "layout", "tabManager", "tree", "commands",
+        "preferences", "layout", "tabManager", "tree", "commands", "menus",
         "dialog.error", "dialog.alert", "save", "Menu", "MenuItem", "Divider"
     ];
     main.provides = ["preview"];
@@ -20,6 +20,7 @@ define(function(require, exports, module) {
         var c9 = imports.c9;
         var settings = imports.settings;
         var commands = imports.commands;
+        var menus = imports.menus;
         var layout = imports.layout;
         var tree = imports.tree;
         var save = imports.save;
@@ -41,8 +42,7 @@ define(function(require, exports, module) {
         
         /***** Initialization *****/
         
-        var handle = editors.register("preview", "Preview", 
-                                           Preview, extensions);
+        var handle = editors.register("preview", "Preview", Preview, extensions);
         var handleEmit = handle.getEmitter();
         
         var previewers = {};
@@ -101,6 +101,8 @@ define(function(require, exports, module) {
                     submenu: submenu
                 });
                 button && ui.insertByIndex(parent, button, 10, handle);
+                
+                menus.addItemByPath("File/Preview/", submenu, 1310, handle);
             }
             
             settings.on("read", function(e) {
