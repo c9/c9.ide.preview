@@ -170,6 +170,9 @@ define(function(require, exports, module) {
                         if (otherPreview && tab.pane != otherPreview) {
                             pane = otherPreview;
                         }
+                        else if (args.pane){
+                            pane = args.pane;
+                        }
                         else {
                             var nodes = tab.pane.group;
                             if (!nodes)
@@ -208,20 +211,22 @@ define(function(require, exports, module) {
                                 warnNoServer(hostname);
                             }
                             
-                            function done(){
-                                // Open Pane
-                                pane = findPane();
-                                
-                                // Open Preview
-                                var path = (options.local ? "http" : "https") 
-                                    + "://" + hostname;
-                                openPreview(path, pane, args && args.active);
-                            }
-                            
                             done();
                         }
                         
-                        if (options.local) {
+                        function done(){
+                            // Open Pane
+                            pane = findPane();
+                            
+                            // Open Preview
+                            var path = (options.local ? "http" : "https") 
+                                + "://" + hostname;
+                            openPreview(path, pane, args && args.active);
+                        }
+                        
+                        if (args.nocheck)
+                            done();
+                        else if (options.local) {
                             proc.execFile("lsof", { 
                                 args: ["-i", ":8080"] 
                             }, cb);
@@ -350,7 +355,10 @@ define(function(require, exports, module) {
                         path: path
                     }
                 }
-            }, function(){});
+            }, function(err, tab, existing){
+                if (existing)
+                    tab.editor.reload();
+            });
         }
         
         function findPreviewer(path, id) {
