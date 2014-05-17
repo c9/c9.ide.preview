@@ -66,13 +66,13 @@ define(function(require, exports, module) {
                                     server: true
                                 });
                             }
-                        }),
+                        })
                     ],
                     "onprop.visible" : function(e) {
                         var tab = tabs.focussedTab;
                         var isKnown = false;
                         
-                        if (tab) {
+                        if (tab && tab.path) {
                             var path = tab.path;
                             for (var name in previewers) {
                                 if (previewers[name].matcher(path)) {
@@ -83,7 +83,7 @@ define(function(require, exports, module) {
                             
                             liveMenuItem.setAttribute("caption", isKnown
                                 ? "Live Preview File (" + basename(path) + ")"
-                                : "Show Raw Content in Preview"
+                                : "Raw Content of " + basename(path)
                             );
                             liveMenuItem.enable();
                         }
