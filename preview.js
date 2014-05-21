@@ -105,7 +105,7 @@ define(function(require, exports, module) {
             
             settings.on("read", function(e) {
                 settings.setDefaults("user/preview", [
-                    ["running_app", "false"],
+                    ["running_app", options.defaultRunApp || "false"],
                     ["default", options.defaultPreviewer || "raw"]
                 ]);
             }, handle);
