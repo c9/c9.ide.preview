@@ -673,8 +673,8 @@ define(function(require, exports, module) {
                 function setTheme(e) {
                     var isDark = e.theme == "dark";
                     tab.backgroundColor = isDark ? "#303130" : "#d6d5d5";
-                    if (isDark) tab.className.add("dark");
-                    else tab.className.remove("dark");
+                    if (isDark) tab.classList.add("dark");
+                    else tab.classList.remove("dark");
                 }
                 
                 layout.on("themeChange", setTheme, doc);
