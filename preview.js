@@ -749,8 +749,11 @@ define(function(require, exports, module) {
                 var session = e.doc.getSession();
                 
                 state.path = session.path;
-                state.previewer = session.previewer.name;
                 
+                if (!state.previewer)
+                    return;
+
+                state.previewer = session.previewer.name;
                 session.previewer.getState(e.doc, state);
             });
             plugin.on("setState", function(e) {
