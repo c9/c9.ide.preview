@@ -102,7 +102,7 @@ define(function(require, exports, module) {
             
             settings.on("read", function(e) {
                 settings.setDefaults("user/preview", [
-                    ["running_app", "false"],
+                    ["running_app", options.defaultRunApp || "false"],
                     ["default", options.defaultPreviewer || "raw"]
                 ]);
             }, handle);
@@ -670,8 +670,8 @@ define(function(require, exports, module) {
                 function setTheme(e) {
                     var isDark = e.theme == "dark";
                     tab.backgroundColor = isDark ? "#303130" : "#d6d5d5";
-                    if (isDark) tab.className.add("dark");
-                    else tab.className.remove("dark");
+                    if (isDark) tab.classList.add("dark");
+                    else tab.classList.remove("dark");
                 }
                 
                 layout.on("themeChange", setTheme, doc);
@@ -746,8 +746,11 @@ define(function(require, exports, module) {
                 var session = e.doc.getSession();
                 
                 state.path = session.path;
-                state.previewer = session.previewer.name;
                 
+                if (!state.previewer)
+                    return;
+
+                state.previewer = session.previewer.name;
                 session.previewer.getState(e.doc, state);
             });
             plugin.on("setState", function(e) {
