@@ -352,7 +352,7 @@ define(function(require, exports, module) {
                         path: path
                     }
                 }
-            }, function(err, tab, existing){
+            }, function(err, tab, done, existing){
                 if (existing)
                     tab.editor.reload();
             });
