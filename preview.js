@@ -86,13 +86,13 @@ define(function(require, exports, module) {
                 });
                 button && ui.insertByIndex(parent, button, 10, handle);
                 
-                menus.addItemByPath("File/Preview/", submenu, 1310, handle);
+                menus.addItemByPath("Tools/Preview/", submenu, 1000, handle);
                 liveMenuItem = new ui.item({
                     onclick: function(){ commands.exec("preview"); }
                 });
-                menus.addItemByPath("File/Preview/Live Preview Files",
+                menus.addItemByPath("Tools/Preview/Live Preview Files",
                     liveMenuItem, 100, handle);
-                menus.addItemByPath("File/Preview/Preview with Web Server", 
+                menus.addItemByPath("Tools/Preview/Preview with Web Server", 
                     new ui.item({
                         onclick: function(){
                             commands.exec("preview", null, { server: true });
