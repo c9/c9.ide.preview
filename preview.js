@@ -705,7 +705,7 @@ define(function(require, exports, module) {
                 };
             
                 tabs.on("open", function(e) {
-                    if (!session.previewTab && e.options.path == session.path) {
+                    if (!session.previewTab && e.options && e.options.path == session.path) {
                         session.previewTab = e.tab;
                         session.previewer.navigate({ url : session.path, tab: e.tab });
                     }
