@@ -71,6 +71,9 @@ define(function(require, exports, module) {
             session.pre.style.display = "block";
             session.editor.setLocation(session.path);
             session.editor.setButtonStyle("Raw Content (UTF-8)", "page_white.png");
+            
+            session.editor.getElement("btnPopOut").hide();
+            session.editor.getElement("btnSettings").hide();
         });
         plugin.on("documentDeactivate", function(e) {
             var session = e.doc.getSession();

@@ -77,8 +77,10 @@ define(function(require, module, exports) {
                 emit("documentLoad", { doc: doc, editor: editor, state: state });
             }
             
-            function unloadDocument(doc) {
-                emit("documentUnload", { doc: doc });
+            function unloadDocument(doc, options) {
+                if (!options) options = {};
+                options.doc = doc;
+                emit("documentUnload", options);
             }
             
             function activateDocument(doc) {
@@ -130,7 +132,6 @@ define(function(require, module, exports) {
                 if (remove) return; // For cleanup
                 
                 // Find new tab
-                session.path = e.url;
                 session.previewTab = e.tab = tabs.findTab(session.path);
                 session.changeListener = function(){
                     update({
@@ -156,6 +157,8 @@ define(function(require, module, exports) {
                 
                 if (session == currentSession)
                     emit("navigate", e); 
+                
+                session.path = e.url;
             };
             
             function getState(doc, state) {

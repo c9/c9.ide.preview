@@ -457,6 +457,7 @@ define(function(require, exports, module) {
             
             var currentDocument, currentSession;
             var container, txtPreview, btnMode, btnBack, btnForward;
+            var btnPopOut, btnSettings;
             
             plugin.on("draw", function(e) {
                 drawHandle();
@@ -529,14 +530,16 @@ define(function(require, exports, module) {
                                                 })
                                             ]
                                         }),
-                                        new ui.button({
+                                        btnPopOut = new ui.button({
+                                            id: "btnPopOut",
                                             skin: "c9-toolbarbutton-glossy",
                                             "class" : "popout",
                                             tooltip: "Pop Out Into New Window",
                                             width: "30",
                                             onclick: function(e){ popout(); }
                                         }),
-                                        new ui.button({
+                                        btnSettings = new ui.button({
+                                            id: "btnSettings",
                                             skin: "c9-toolbarbutton-glossy",
                                             "class" : "settings",
                                             tooltip: "Preview Settings",
@@ -607,6 +610,9 @@ define(function(require, exports, module) {
                     // Enable the new previewer
                     var previewer = previewers[id].plugin;
                     session.previewer = previewer;
+                    
+                    btnSettings.show();
+                    btnPopOut.show();
                     
                     previewer.loadDocument(doc, plugin, state);
                     previewer.activateDocument(doc);
@@ -718,6 +724,9 @@ define(function(require, exports, module) {
                 currentDocument = e.doc;
                 currentSession = e.doc.getSession();
                 
+                btnSettings.show();
+                btnPopOut.show();
+                
                 var previewer = currentSession.previewer;
                 previewer.activateDocument(currentDocument);
                 
@@ -734,7 +743,7 @@ define(function(require, exports, module) {
                 var session = doc.getSession();
                 
                 session.previewer.navigate(doc, true); // Remove the listener
-                session.previewer.unloadDocument(doc);
+                session.previewer.unloadDocument(doc, e);
                 
                 if (session == currentSession) {
                     currentDocument = null;
@@ -747,7 +756,7 @@ define(function(require, exports, module) {
                 
                 state.path = session.path;
                 
-                if (!state.previewer)
+                if (!session.previewer)
                     return;
 
                 state.previewer = session.previewer.name;
