@@ -1,14 +1,16 @@
 define(function(require, module, exports) {
     main.consumes = [
-        "Plugin", "preview", "MenuItem", "Menu", "Divider", "tabManager"
+        "Plugin", "preview", "MenuItem", "Menu", "Divider", "tabManager",
+        "error_handler"
     ];
     main.provides = ["Previewer"];
     return main;
 
     function main(options, imports, register) {
+        var Menu = imports.Menu;
         var Plugin = imports.Plugin;
         var preview = imports.preview;
-        var Menu = imports.Menu;
+        var errorHandler = imports.error_handler;
         var MenuItem = imports.MenuItem;
         var Divider = imports.Divider;
         var tabs = imports.tabManager;
@@ -113,11 +115,18 @@ define(function(require, module, exports) {
                 emit("popout");
             }
             
-            function navigate(e, remove) { 
+            function navigate(e, remove) {
                 var session = e && e.doc ? e.doc.getSession() : currentSession;
                 var doc;
                 
-                if (session && session.previewTab) {
+                if (!session) {
+                    // todo remove this after a while
+                    var err = new Error("navigate called without session");
+                    errorHandler.reportError(err, {doc: !!(e && e.doc) , remove: remove}, ["collab"]);
+                    return;
+                }
+                
+                if (session.previewTab) {
                     doc = session.previewTab.document;
                     
                     // Remove previous change listener
@@ -142,7 +151,7 @@ define(function(require, module, exports) {
                 };
                 session.renameListener = function(e) {
                     navigate({ url: e.path, doc: doc });
-                }
+                };
                 
                 // Set new change listener
                 if (session.previewTab) {
@@ -159,7 +168,7 @@ define(function(require, module, exports) {
                     emit("navigate", e); 
                 
                 session.path = e.url;
-            };
+            }
             
             function getState(doc, state) {
                 emit("getState", {
@@ -516,6 +525,6 @@ define(function(require, module, exports) {
         
         register(null, {
             Previewer: Previewer
-        })
+        });
     }
 });
