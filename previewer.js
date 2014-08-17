@@ -108,7 +108,7 @@ define(function(require, module, exports) {
             }
             
             function reload(){ 
-                emit("reload"); 
+                emit("reload", { session: currentSession }); 
             }
             
             function popout(){ 
