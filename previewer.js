@@ -141,7 +141,9 @@ define(function(require, module, exports) {
                 if (remove) return; // For cleanup
                 
                 // Find new tab
-                session.previewTab = e.tab = tabs.findTab(session.path);
+                e.tab = session.previewTab = tabs.findTab(session.path);
+                e.session = session;
+                
                 session.changeListener = function(){
                     update({
                         doc: doc,
