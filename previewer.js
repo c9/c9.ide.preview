@@ -108,7 +108,7 @@ define(function(require, module, exports) {
             }
             
             function reload(){ 
-                emit("reload", { session: currentSession }); 
+                emit("reload"); 
             }
             
             function popout(){ 
@@ -141,9 +141,7 @@ define(function(require, module, exports) {
                 if (remove) return; // For cleanup
                 
                 // Find new tab
-                e.tab = session.previewTab = tabs.findTab(session.path);
-                e.session = session;
-                
+                session.previewTab = e.tab = tabs.findTab(session.path);
                 session.changeListener = function(){
                     update({
                         doc: doc,

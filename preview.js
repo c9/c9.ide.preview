@@ -453,7 +453,7 @@ define(function(require, exports, module) {
         
         function Preview(){
             var plugin = new Editor("Ajax.org", main.consumes, extensions);
-            var emit = plugin.getEmitter();
+            //var emit = plugin.getEmitter();
             
             var currentDocument, currentSession;
             var container, txtPreview, btnMode, btnBack, btnForward;
@@ -689,18 +689,7 @@ define(function(require, exports, module) {
             
                 session.previewer = findPreviewer(session.initPath, (e.state || 0).previewer);
                 session.previewer.loadDocument(doc, plugin, e.state);
-                
-                var handler = function(type, e){
-                    if (currentSession == e.session)
-                        emit(type, { 
-                            previewer: session.previewer,
-                            session: session,
-                            url: e.url
-                        });
-                };
-                session.previewer.on("navigate", handler.bind(null, "navigate"), session);
-                session.previewer.on("reload", handler.bind(null, "reload"), session);
-                
+            
                 session.stack = [];
                 session.position = -1;
                 session.add = function(value) {
