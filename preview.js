@@ -36,7 +36,6 @@ define(function(require, exports, module) {
         var basename = require("path").basename;
         
         var extensions = ["pdf", "swf"];
-        var counter = 0;
         
         var previewUrl = options.previewUrl;
         
@@ -877,7 +876,7 @@ define(function(require, exports, module) {
                 setButtonStyle: setButtonStyle
             });
             
-            plugin.load("preview" + counter++);
+            plugin.load(null, "preview");
             
             return plugin;
         }
