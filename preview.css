@@ -51,7 +51,7 @@
 }
 
 .previewbar .c9-toolbarbutton-glossy.settings .c9-icon {
-    background: url("@{image-path}/c9-repeat-x.png") no-repeat 50% -366px;
+    background: url("@{image-path}/@{c9-repeat-x}") no-repeat 50% -366px;
 }
 
 .previewbar .c9-toolbarbutton-glossy.goforward .c9-icon {
