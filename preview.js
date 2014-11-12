@@ -44,6 +44,14 @@ define(function(require, exports, module) {
         var handle = editors.register("preview", "Preview", Preview, extensions);
         var handleEmit = handle.getEmitter();
         
+        var BGCOLOR = { 
+            "flat-light": "#F1F1F1", 
+            "light": "#d6d5d5", 
+            "light-gray": "#d6d5d5",
+            "dark": "#303130",
+            "dark-gray": "#303130" 
+        };
+        
         var previewers = {};
         var menu, liveMenuItem, mnuSettings;
         
@@ -674,7 +682,7 @@ define(function(require, exports, module) {
                 
                 function setTheme(e) {
                     var isDark = e.theme == "dark";
-                    tab.backgroundColor = isDark ? "#303130" : "#d6d5d5";
+                    tab.backgroundColor = BGCOLOR[e.theme];
                     if (isDark) tab.classList.add("dark");
                     else tab.classList.remove("dark");
                 }

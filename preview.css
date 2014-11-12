@@ -2,8 +2,8 @@
     /*box-shadow: 0px 1px rgba(255,255,255,0.14), 0px 4px 22px rgb(0, 0, 0);*/
     box-shadow: @preview-bar-box-shadow;
     z-index: 1;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
-    background: #303130;
+    border-top: @preview-bar-border-top;
+    background: @preview-bar-background-color;
 }
 
 .previewbar .searchbox.tb_console .sbtb_middle{
