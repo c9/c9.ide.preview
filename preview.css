@@ -4,6 +4,7 @@
     z-index: 1;
     border-top: @preview-bar-border-top;
     background: @preview-bar-background-color;
+    height: @preview-bar-height !important;
 }
 
 .previewbar .searchbox.tb_console .sbtb_middle{
