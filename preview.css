@@ -40,33 +40,39 @@
 }
 
 .previewbar .c9-toolbarbutton-glossy.close .c9-icon {
-    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -66px;
+    .image-2x(@preview-icon-close, @preview-icon-close-width, @preview-icon-close-height, no-repeat, true);
+    background-position: @preview-icon-close-position;
 }
 
 .previewbar .c9-toolbarbutton-glossy.refresh .c9-icon {
-    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -89px;
+    .image-2x(@preview-icon-refresh, @preview-icon-refresh-width, @preview-icon-refresh-height, no-repeat, true);
+    background-position: @preview-icon-refresh-position;
 }
 
 .previewbar .c9-toolbarbutton-glossy.popout .c9-icon {
-    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -114px;
+    .image-2x(@preview-icon-popout, @preview-icon-popout-width, @preview-icon-popout-height, no-repeat, true);
+    background-position: @preview-icon-popout-position;
 }
 
 .previewbar .c9-toolbarbutton-glossy.settings .c9-icon {
-    background: url("@{image-path}/@{c9-repeat-x}") no-repeat 50% -366px;
+    .image-2x(@preview-icon-settings, @preview-icon-settings-width, @preview-icon-settings-height, no-repeat, true);
+    background-position: @preview-icon-settings-position;
 }
 
 .previewbar .c9-toolbarbutton-glossy.goforward .c9-icon {
-    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -185px;
+    .image-2x(@preview-icon-goforward, @preview-icon-goforward-width, @preview-icon-goforward-height, no-repeat, true);
+    background-position: @preview-icon-goforward-position;
 }
 
 .previewbar .c9-toolbarbutton-glossyDisabled.goforward .c9-icon {
-    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -209px;
+    background-position: @preview-icon-goforward-disabled-position;
 }
 
 .previewbar .c9-toolbarbutton-glossy.goback .c9-icon {
-    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -137px;
+    .image-2x(@preview-icon-goback, @preview-icon-goback-width, @preview-icon-goback-height, no-repeat, true);
+    background-position: @preview-icon-goback-position;
 }
 
 .previewbar .c9-toolbarbutton-glossyDisabled.goback .c9-icon {
-    background: url("@{image-path}/c9-preview-repeat.png") no-repeat 0 -161px;
+    background-position: @preview-icon-goback-disabled-position;
 }
