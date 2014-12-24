@@ -688,7 +688,7 @@ define(function(require, exports, module) {
                 }
                 
                 layout.on("themeChange", setTheme, doc);
-                setTheme({ theme: settings.get("user/general/@skin") || "dark" });
+                setTheme({ theme: settings.get("user/general/@skin") });
                 
                 // session.path = session.path || e.state.path;
                 session.initPath = session.path || e.state.path || doc.tab.path;
