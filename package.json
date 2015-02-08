@@ -9,15 +9,13 @@
         "url": "http://github.com/c9/c9.ide.preview.git"
     },
     "plugins": {
-        "plugin": {
-            "preview": {},
-            "previewer": {}
-        }
+        "preview": {},
+        "previewer": {}
     },
     "categories": [
         "core"
     ],
     "licenses": [
-        ""
+        "MIT"
     ]
 }
