@@ -99,7 +99,7 @@ define(function(require, exports, module) {
                 });
                 menus.addItemByPath("Tools/Preview/Live Preview Files",
                     liveMenuItem, 100, handle);
-                menus.addItemByPath("Tools/Preview/Preview with Web Server", 
+                menus.addItemByPath("Tools/Preview/Preview Running Application", 
                     new ui.item({
                         onclick: function(){
                             commands.exec("preview", null, { server: true });
