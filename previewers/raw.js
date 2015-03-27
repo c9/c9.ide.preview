@@ -41,14 +41,13 @@ define(function(require, exports, module) {
         plugin.on("load", function(){
             
         });
-        plugin.on("documentLoad", function(e) {
-            var doc = e.doc;
-            var session = doc.getSession();
+        plugin.on("sessionStart", function(e) {
+            var session = e.session;
             var editor = e.editor;
             
             draw();
             
-            var pre = document.createElement("pre")
+            var pre = document.createElement("pre");
             pre.className = "rawview";
             
             // Append PRE element
@@ -60,13 +59,12 @@ define(function(require, exports, module) {
             container.$isTextInput = function(){ return true };
             container.disabled = false;
         });
-        plugin.on("documentUnload", function(e) {
-            var doc = e.doc;
-            var pre = doc.getSession().pre;
+        plugin.on("sessionEnd", function(e) {
+            var pre = e.session.pre;
             pre.parentNode.removeChild(pre);
         });
-        plugin.on("documentActivate", function(e) {
-            var session = e.doc.getSession();
+        plugin.on("sessionActivate", function(e) {
+            var session = e.session;
             
             session.pre.style.display = "block";
             session.editor.setLocation(session.path);
@@ -75,8 +73,8 @@ define(function(require, exports, module) {
             session.editor.getElement("btnPopOut").hide();
             session.editor.getElement("btnSettings").hide();
         });
-        plugin.on("documentDeactivate", function(e) {
-            var session = e.doc.getSession();
+        plugin.on("sessionDeactivate", function(e) {
+            var session = e.session;
             session.pre.style.display = "none";
         });
         plugin.on("navigate", function(e) {

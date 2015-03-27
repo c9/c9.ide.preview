@@ -76,33 +76,55 @@ define(function(require, module, exports) {
                 
                 if (state)
                     setState(doc, state);
-                emit("documentLoad", { doc: doc, editor: editor, state: state });
+                
+                emit("sessionStart", { 
+                    doc: doc, 
+                    tab: doc.tab,
+                    session: doc.getSession(),
+                    editor: editor, 
+                    state: state 
+                });
             }
             
             function unloadDocument(doc, options) {
                 if (!options) options = {};
+                
                 options.doc = doc;
-                emit("documentUnload", options);
+                options.session = doc.getSession();
+                options.tab = doc.tab;
+                
+                emit("sessionEnd", options);
             }
             
             function activateDocument(doc) {
                 currentDocument = doc;
                 currentSession = doc.getSession();
                 
-                emit("documentActivate", { doc: currentDocument });
+                emit("sessionActivate", { 
+                    doc: currentDocument,
+                    tab: currentDocument.tab,
+                    session: currentSession
+                });
             }
             
             function deactivateDocument(doc) {
                 currentDocument = null;
                 currentSession = null;
                 
-                emit("documentDeactivate", { doc: doc });
+                emit("sessionDeactivate", { 
+                    doc: doc,
+                    tab: doc.tab,
+                    session: doc.getSession()
+                });
             }
             
-            function update(e) { 
-                if (currentDocument && currentDocument.getSession().previewTab
-                    && e.doc == currentDocument.getSession().previewTab.document) {
+            function update(e) {
+                if (!currentDocument) return;
+                
+                var session = currentDocument.getSession();
+                if (session.previewTab && e.doc == session.previewTab.document) {
                     e.previewDocument = e.doc;
+                    e.session = session;
                     emit("update", e);
                 }
             }
@@ -112,7 +134,7 @@ define(function(require, module, exports) {
             }
             
             function popout(){ 
-                emit("popout");
+                emit("popout", { session: currentSession });
             }
             
             function navigate(e, remove) {
@@ -175,6 +197,7 @@ define(function(require, module, exports) {
             function getState(doc, state) {
                 emit("getState", {
                     doc: doc,
+                    session: doc.getSession(),
                     state: state
                 });
                 
@@ -184,6 +207,7 @@ define(function(require, module, exports) {
             function setState(doc, state) {
                 emit("setState", {
                     doc: doc,
+                    session: doc.getSession(),
                     state: state || {}
                 });
             }
@@ -323,73 +347,73 @@ define(function(require, module, exports) {
                 
                 _events: [
                     /** 
-                     * Fires when a document is loaded into the previewer.
-                     * This event is also fired when this document is attached to another
+                     * Fires when a preview session is started for this previewer.
+                     * This event is also fired when the session is attached to another
                      * instance of the same previewer (in a split view situation). Often you
                      * want to keep the session information partially in tact when this
                      * happens.
                      * 
-                     * *N.B.: The document that is loaded is the document that 
-                     * belongs to the preview editor. It is *not* the document 
-                     * that is going to be previewed. The document to preview
+                     * *N.B.: The document to preview
                      * is accessible via the session: 
-                     * `doc.getSession().previewTab.document`.*
+                     * `e.session.previewTab.document`.*
                      * 
-                     * @event documentLoad 
+                     * @event sessionStart 
                      * @param {Object}   e
                      * @param {Document} e.doc     the document that is loaded into the previewer
+                     * @param {Tab}      e.tab     the tab that the previewer is a part of
+                     * @param {Session}  e.session the preview session
                      * @param {Object}   e.state   state that was saved in the document
                      * @param {Editor}   e.editor  the instance of the {@link Preview} editor
                      */
-                    "documentLoad",
+                    "sessionStart",
                     /** 
-                     * Fires when a document becomes the active document of a previewer
-                     * This event is called every time a tab becomes the active tab of
+                     * Fires when a preview session becomes active.
+                     * This event is also fired every time a tab becomes the active tab of
                      * a pane. Use it to show / hide whatever is necessary.
                      * 
-                     * *N.B.: The document that is activated is the document that 
-                     * belongs to the preview editor. It is *not* the document 
-                     * that is going to be previewed. The document to preview
+                     * *N.B.: The document to preview
                      * is accessible via the session: 
-                     * `doc.getSession().previewTab.document`.*
+                     * `e.session.previewTab.document`.*
                      * 
-                     * @event documentActivate
+                     * @event sessionActivate
                      * @param {Object}   e
-                     * @param {Document} e.doc  the document that is activate
+                     * @param {Document} e.doc      the document that is activate
+                     * @param {Tab}      e.tab      the tab that the previewer is a part of
+                     * @param {Session}  e.session  the preview session
                      */
-                    "documentActivate",
+                    "sessionActivate",
                     /**
-                     * Fires when a document stops being the active document of a previewer
-                     * This event is called every time a tab stops being the active tab of
+                     * Fires when a preview session is no longer active
+                     * This event is also fired every time a tab stops being the active tab of
                      * a pane. Use it to show / hide whatever is necessary.
                      * 
-                     * *N.B.: The document that is deactivated is the document that 
-                     * belongs to the preview editor. It is *not* the document 
-                     * that is going to be previewed. The document to preview
+                     * *N.B.: The document to preview
                      * is accessible via the session: 
-                     * `doc.getSession().previewTab.document`.*
+                     * `e.session.previewTab.document`.*
                      * 
-                     * @event documentDeactivate
+                     * @event sessionDeactivate
                      * @param {Object}   e
-                     * @param {Document} e.doc  the document that is activate
+                     * @param {Document} e.doc      the document that is activate
+                     * @param {Tab}      e.tab      the tab that the previewer is a part of
+                     * @param {Session}  e.session  the preview session
                      */
-                    "documentDeactivate",
+                    "sessionDeactivate",
                     /**
-                     * Fires when a document is unloaded from the previewer.
-                     * This event is also fired when this document is attached to another
+                     * Fires when a session ends for this previewer.
+                     * This event is also fired when the session is attached to another
                      * instance of the previewer (in a split view situation).
                      * 
-                     * *N.B.: The document that is unloaded is the document that 
-                     * belongs to the preview editor. It is *not* the document 
-                     * that is going to be previewed. The document to preview
+                     * *N.B.: The document to preview
                      * is accessible via the session: 
-                     * `doc.getSession().previewTab.document`.*
+                     * `e.session.previewTab.document`.*
                      * 
-                     * @event documentUnload
+                     * @event sessionEnd
                      * @param {Object}   e
-                     * @param {Document} e.doc  the document that was loaded into the previewer
+                     * @param {Document} e.doc      the document that was loaded into the previewer
+                     * @param {Tab}      e.tab      the tab that the previewer is a part of
+                     * @param {Session}  e.session  the preview session
                      */
-                    "documentUnload",
+                    "sessionEnd",
                     /** 
                      * Fires when the state of the previewer is retrieved
                      * @event getState
