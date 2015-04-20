@@ -347,8 +347,8 @@ define(function(require, exports, module) {
             delete previewers[plugin.name];
         }
         
-        function openPreview(path, pane, active) {
-            tabs.open({
+        function openPreview(path, pane, active, callback) {
+            return tabs.open({
                 name: "preview-" + path,
                 editorType: "preview",
                 pane: pane,
@@ -362,6 +362,8 @@ define(function(require, exports, module) {
             }, function(err, tab, done, existing){
                 if (existing)
                     tab.editor.reload();
+                
+                callback && callback(err, tab);
             });
         }
         
@@ -426,6 +428,11 @@ define(function(require, exports, module) {
              * 
              */
             get settingsMenu(){ return mnuSettings; },
+            
+            /**
+             * 
+             */
+            openPreview: openPreview,
             
             /**
              * Adds a previewer to the list of known previewers.
