@@ -682,6 +682,9 @@ define(function(require, exports, module) {
                 var tab = doc.tab;
                 var session = doc.getSession();
                 
+                session.doc = doc;
+                session.tab = tab;
+                
                 if (session.inited) {
                     session.previewer.loadDocument(doc, plugin);
                     return;
