@@ -37,7 +37,9 @@ define(function(require, exports, module) {
         
         var extensions = ["pdf", "swf"];
         
-        var previewUrl = options.previewUrl;
+        var previewUrl = options.previewUrl.replace(/^[/]/, function() {
+            return c9.location.replace(/^(\w+:[/]+[^/#?]+).*/, "$1/");
+        }).replace(/[/]$/, "");
         
         /***** Initialization *****/
         
@@ -251,7 +253,7 @@ define(function(require, exports, module) {
                             return;
                         
                         pane = findPane();
-                        path = tab.path;
+                        path = tab.path.replace(/[#?]/g, escape);
                     }
                     
                     if (searchTab(path))
