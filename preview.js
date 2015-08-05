@@ -207,7 +207,9 @@ define(function(require, exports, module) {
                                     if (json[name]["default"]) {
                                         commands.exec("run", null, {
                                             callback: function(proc) {
-                                                proc.on("started", done);
+                                                proc.on("started", function(){
+                                                    setTimeout(done, 1000);
+                                                });
                                             }
                                         });
                                         return;
@@ -227,6 +229,7 @@ define(function(require, exports, module) {
                             // Open Preview
                             var path = (options.local ? "http" : "https") 
                                 + "://" + hostname;
+                            
                             openPreview(path, pane, args && args.active);
                         }
                         
