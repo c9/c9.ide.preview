@@ -125,12 +125,12 @@ define(function(require, exports, module) {
                         "Preview Running Apps" : {
                             type: "checkbox",
                             path: "user/preview/@running_app",
-                            position: 4000
+                            position: 400
                         },
                         "Default Previewer" : {
                             type: "dropdown",
                             path: "user/preview/@default",
-                            position: 5000,
+                            position: 500,
                             items: [
                                 // @todo this should come from plugin api
                                 { caption: "Raw", value: "preview.raw" },
