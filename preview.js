@@ -48,6 +48,7 @@ define(function(require, exports, module) {
         
         var BGCOLOR = { 
             "flat-light": "#F1F1F1", 
+            "flat-dark": "#303130",
             "light": "#d6d5d5", 
             "light-gray": "#d6d5d5",
             "dark": "#303130",
