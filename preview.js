@@ -192,9 +192,7 @@ define(function(require, exports, module) {
                     }
                     
                     if (args.server) {
-                        var hostname = options.local
-                            ? "localhost:8080"
-                            : c9.hostname;
+                        var hostname = c9.hostname || "localhost:8080";
                         
                         var cb = function(err, stderr, stdout) {
                             if (err && err.code != 1) 
