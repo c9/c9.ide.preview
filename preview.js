@@ -298,14 +298,6 @@ define(function(require, exports, module) {
             if (drawn) return;
             drawn = true;
             
-            // Import Skin
-            ui.insertSkin({
-                name: "previewskin",
-                data: require("text!./preview.xml"),
-                "media-path" : options.staticPrefix + "/images/",
-                "icon-path"  : options.staticPrefix + "/images/"
-            }, handle);
-            
             // Import CSS
             var css = require("text!./preview.css");
             ui.insertCss(css, options.staticPrefix, handle);
@@ -542,8 +534,7 @@ define(function(require, exports, module) {
                                                     id: "btnMode",
                                                     submenu: menu.aml,
                                                     icon: "page_white.png",
-                                                    skin: "btn-preview-choice",
-                                                    skinset: "previewskin",
+                                                    skin: "btn-switcher",
                                                     caption: "browser"
                                                 })
                                             ]
