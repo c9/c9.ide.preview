@@ -63,7 +63,7 @@ define(function(require, module, exports) {
                             }
                         }
                     }
-                });
+                }, plugin);
             });
             
             /***** Methods *****/
@@ -77,10 +77,36 @@ define(function(require, module, exports) {
                 if (state)
                     setState(doc, state);
                 
-                emit("sessionStart", { 
+                var session = doc.getSession();
+                
+                session.changeListener = function(){
+                    if (!session.previewTab || !session.previewTab.loaded)
+                        return;
+                        
+                    update({
+                        doc: session.previewTab.document,
+                        saved: session.previewTab
+                            .document.undoManager.isAtBookmark()
+                    });
+                };
+                session.renameListener = function(e) {
+                    if (!session.previewTab || !session.previewTab.loaded)
+                        return;
+                        
+                    navigate({ url: e.path, doc: session.previewTab.document });
+                };
+                
+                tabs.on("open", function(e){
+                    if (e.tab.path == session.path) {
+                        updatePreviewTab(session, null, e.tab);
+                        session.changeListener();
+                    }
+                }, session);
+                
+                emit("sessionStart", {
                     doc: doc, 
                     tab: doc.tab,
-                    session: doc.getSession(),
+                    session: session,
                     editor: editor, 
                     state: state 
                 });
@@ -137,19 +163,16 @@ define(function(require, module, exports) {
                 emit("popout", { session: currentSession });
             }
             
-            function navigate(e, remove) {
-                var session = e && e.doc ? e.doc.getSession() : currentSession;
-                var doc;
-                
-                if (!session) {
-                    // todo remove this after a while
-                    var err = new Error("navigate called without session");
-                    errorHandler.reportError(err, {doc: !!(e && e.doc) , remove: remove}, ["collab"]);
-                    return;
+            function updatePreviewTab(session, remove, tab){
+                if (!remove) {
+                    if (!tab)
+                        tab = tabs.findTab(session.path);
+                    if (tab === session.previewTab)
+                        return;
                 }
                 
                 if (session.previewTab) {
-                    doc = session.previewTab.document;
+                    var doc = session.previewTab.document;
                     
                     // Remove previous change listener
                     if (session.changeListener)
@@ -160,22 +183,10 @@ define(function(require, module, exports) {
                         doc.tab.off("path.set", session.renameListener);
                 }
                 
-                if (remove) return; // For cleanup
+                if (remove) return;
                 
                 // Find new tab
-                e.tab = session.previewTab = tabs.findTab(session.path);
-                e.session = session;
-                
-                session.changeListener = function(){
-                    update({
-                        doc: doc,
-                        saved: session.previewTab
-                            .document.undoManager.isAtBookmark()
-                    });
-                };
-                session.renameListener = function(e) {
-                    navigate({ url: e.path, doc: doc });
-                };
+                session.previewTab = tab;
                 
                 // Set new change listener
                 if (session.previewTab) {
@@ -187,6 +198,25 @@ define(function(require, module, exports) {
                     // Listen to path changes
                     doc.tab.on("setPath", session.renameListener);
                 }
+                
+                return session.previewTab;
+            }
+            
+            function navigate(e, remove) {
+                var session = e && e.doc ? e.doc.getSession() : currentSession;
+                
+                if (!session) {
+                    // todo remove this after a while
+                    var err = new Error("navigate called without session");
+                    errorHandler.reportError(err, {doc: !!(e && e.doc) , remove: remove}, ["collab"]);
+                    return;
+                }
+                
+                if (remove) // For cleanup
+                    return updatePreviewTab(session, true);
+                
+                e.tab = updatePreviewTab(session);
+                e.session = session;
                 
                 if (session == currentSession)
                     emit("navigate", e); 
