@@ -1,6 +1,6 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "Editor", "editors", "settings", "ui", "proc", "c9",
+        "Editor", "editors", "settings", "ui", "proc", "c9", "util",
         "preferences", "layout", "tabManager", "tree", "commands", "menus",
         "dialog.error", "dialog.alert", "save", "Menu", "MenuItem", "Divider"
     ];
@@ -25,6 +25,7 @@ define(function(require, exports, module) {
         var tree = imports.tree;
         var save = imports.save;
         var proc = imports.proc;
+        var util = imports.util;
         var tabs = imports.tabManager;
         var prefs = imports.preferences;
         var Menu = imports.Menu;
@@ -148,7 +149,7 @@ define(function(require, exports, module) {
                 caption: "Preview",
                 isAvailable: function(){
                     return tree.selectedNode && !tree.selectedNode.isFolder
-                        && (options.local || tree.selectedNode.path.charAt(0) != "~");
+                        && (options.local || util.normalizePath(tree.selectedNode.path).charAt(0) != "~");
                 },
                 onclick: function(){
                     openPreview(tree.selected);
