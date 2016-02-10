@@ -114,33 +114,9 @@ define(function(require, exports, module) {
             settings.on("read", function(e) {
                 settings.setDefaults("user/preview", [
                     ["running_app", options.defaultRunApp || "false"],
-                    ["default", options.defaultPreviewer || "raw"]
+                    ["default", options.defaultPreviewer || "raw"],
+                    ["onSave", "false"]
                 ]);
-            }, handle);
-            
-            // Preferences
-            prefs.add({
-                "Run" : {
-                    position: 600,
-                    "Preview" : {
-                        position: 200,
-                        "Preview Running Apps" : {
-                            type: "checkbox",
-                            path: "user/preview/@running_app",
-                            position: 400
-                        },
-                        "Default Previewer" : {
-                            type: "dropdown",
-                            path: "user/preview/@default",
-                            position: 500,
-                            items: [
-                                // @todo this should come from plugin api
-                                { caption: "Raw", value: "preview.raw" },
-                                { caption: "Browser", value: "preview.browser" }
-                            ]
-                        },
-                    }
-                }
             }, handle);
             
             // Context menu for tree
@@ -291,7 +267,51 @@ define(function(require, exports, module) {
                 }
             }, handle);
             
+            save.on("afterSave", function(e) {
+                if (settings.get("user/preview/@onSave") !== "true")
+                    return;
+                var tab = searchTab(e.path) || searchTab() || searchTab(-1);
+                tab && tab.editor.reload();
+            });
+            
             menu = new Menu({}, handle);
+            
+            // Preferences
+            var key = commands.getHotkey("reloadpreview");
+            if (commands.platform == "mac")
+                key = apf.hotkeys.toMacNotation(key);
+            prefs.add({
+                "Run" : {
+                    position: 600,
+                    "Preview" : {
+                        position: 200,
+                        "Preview Running Apps" : {
+                            type: "checkbox",
+                            path: "user/preview/@running_app",
+                            position: 400
+                        },
+                        "Default Previewer" : {
+                            type: "dropdown",
+                            path: "user/preview/@default",
+                            position: 500,
+                            items: [
+                                // @todo this should come from plugin api
+                                { caption: "Raw", value: "preview.raw" },
+                                { caption: "Browser", value: "preview.browser" }
+                            ]
+                        },
+                        "Preview on Save": {
+                            type: "dropdown",
+                            path: "user/preview/@onSave",
+                            position: 600,
+                            items: [
+                                { caption: "Only on " + key, value: "false" },
+                                { caption: "Always", value: "true" },
+                            ]
+                        }
+                    }
+                }
+            }, handle);
         }
         
         var drawn = false;
