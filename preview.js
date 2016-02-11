@@ -300,7 +300,7 @@ define(function(require, exports, module) {
                                 { caption: "Browser", value: "preview.browser" }
                             ]
                         },
-                        "Preview on Save": {
+                        "When Saving Reload Preview": {
                             type: "dropdown",
                             path: "user/preview/@onSave",
                             position: 600,
