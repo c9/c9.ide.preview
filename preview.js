@@ -728,6 +728,8 @@ define(function(require, exports, module) {
                 // session.path = session.path || e.state.path;
                 session.initPath = session.path || e.state.path || doc.tab.path;
                 session.inited = true;
+                if (e.state.trusted || e.state.trustedPath)
+                    session.trustedPath = e.state.trustedPath || e.state.path;
             
                 session.previewer = findPreviewer(session.initPath, (e.state || 0).previewer);
                 session.previewer.loadDocument(doc, plugin, e.state);
