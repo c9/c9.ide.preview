@@ -371,7 +371,6 @@ define(function(require, exports, module) {
                 pane: pane,
                 active: active !== false,
                 document: {
-                    title: "[P] " + path,
                     preview: {
                         path: path
                     }

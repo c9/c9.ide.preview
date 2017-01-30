@@ -80,9 +80,9 @@ define(function(require, exports, module) {
         plugin.on("navigate", function(e) {
             var tab = plugin.activeDocument.tab;
             var session = plugin.activeSession;
-            
-            tab.title = 
+
             tab.tooltip = "[R] " + e.url;
+            tab.title = session.doc.title || tab.tooltip;
             session.editor.setLocation(e.url);
             
             update();
