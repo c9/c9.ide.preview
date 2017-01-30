@@ -24,13 +24,13 @@ define(function(require, module, exports) {
             var onclick = options.onclick;
             var submenu = options.submenu;
             var divider = options.divider;
-            var selector = options.selector || function(){ return false; };
+            var selector = options.selector || function() { return false; };
             var index = options.index || 100;
             var menu, item, div;
             
             var currentSession, currentDocument;
             
-            plugin.on("load", function(){
+            plugin.on("load", function() {
                 preview.register(plugin, selector);
                 
                 var rootMenu = preview.previewMenu;
@@ -41,7 +41,7 @@ define(function(require, module, exports) {
                 }));
                 
                 if (onclick || !submenu)
-                    item.on("click", onclick || function(){
+                    item.on("click", onclick || function() {
                         var editor = tabs.focussedTab.editor;
                         editor.setPreviewer(plugin.name);
                     });
@@ -70,7 +70,7 @@ define(function(require, module, exports) {
             
             function loadDocument(doc, editor, state) {
                 if (!doc.meta.$previewInited) {
-                    doc.addOther(function(){ navigate({ doc: doc }, true); });
+                    doc.addOther(function() { navigate({ doc: doc }, true); });
                     doc.meta.$previewInited = true;
                 }
                 
@@ -79,7 +79,7 @@ define(function(require, module, exports) {
                 
                 var session = doc.getSession();
                 
-                session.changeListener = function(){
+                session.changeListener = function() {
                     if (!session.previewTab || !session.previewTab.loaded)
                         return;
                         
@@ -96,7 +96,7 @@ define(function(require, module, exports) {
                     navigate({ url: e.path, doc: session.previewTab.document });
                 };
                 
-                tabs.on("open", function(e){
+                tabs.on("open", function(e) {
                     if (e.tab.path == session.path) {
                         updatePreviewTab(session, null, e.tab);
                         session.changeListener();
@@ -155,15 +155,15 @@ define(function(require, module, exports) {
                 }
             }
             
-            function reload(){ 
+            function reload() { 
                 emit("reload", { session: currentSession }); 
             }
             
-            function popout(){ 
+            function popout() { 
                 emit("popout", { session: currentSession });
             }
             
-            function updatePreviewTab(session, remove, tab){
+            function updatePreviewTab(session, remove, tab) {
                 if (!remove) {
                     if (!tab)
                         tab = tabs.findTab(session.path);
@@ -208,7 +208,7 @@ define(function(require, module, exports) {
                 if (!session) {
                     // todo remove this after a while
                     var err = new Error("navigate called without session");
-                    errorHandler.reportError(err, {doc: !!(e && e.doc) , remove: remove}, ["collab"]);
+                    errorHandler.reportError(err, { doc: !!(e && e.doc), remove: remove }, ["collab"]);
                     return;
                 }
                 
@@ -249,7 +249,7 @@ define(function(require, module, exports) {
                 });
             }
             
-            function blur(){
+            function blur() {
                 emit("blur");
             }
             
@@ -349,31 +349,31 @@ define(function(require, module, exports) {
                  * @property {Menu} menu The sub menu for the previewer menu item (if any).
                  * @readonly
                  */
-                get menu(){ return menu; },
+                get menu() { return menu; },
                 /**
                  * @property {MenuItem} item The menu item for the preview menu.
                  * @readonly
                  */
-                get item(){ return item; },
+                get item() { return item; },
                 /**
                  * @property {Divider} divider The divider for the previewer menu (if any).
                  * @readonly
                  */
-                get divider(){ return div; },
+                get divider() { return div; },
                 
                 /**
                  * @property {Document} activeDocument The document that is currently 
                  *   active (visible) in this previewer.
                  * @readonly
                  */
-                get activeDocument(){ return currentDocument; },
+                get activeDocument() { return currentDocument; },
                 /**
                  * @property {Session} activeSession The session that belongs to the active 
                  *   document. This can also be retrieved using 
                  *   `previewer.activeDocument.getSession()`.
                  * @readonly
                  */
-                get activeSession(){ return currentSession; },
+                get activeSession() { return currentSession; },
                 
                 _events: [
                     /** 

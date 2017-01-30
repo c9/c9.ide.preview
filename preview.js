@@ -59,11 +59,11 @@ define(function(require, exports, module) {
         var previewers = {};
         var menu, liveMenuItem, mnuSettings;
         
-        function load(){
+        function load() {
             var parent = layout.findParent({ name: "preview" });
             if (!options.hideButton) {
                 var submenu = new ui.menu({
-                    "onprop.visible" : function(e) {
+                    "onprop.visible": function(e) {
                         var tab = tabs.focussedTab;
                         var isKnown = false;
                         
@@ -90,7 +90,7 @@ define(function(require, exports, module) {
                 
                 var button = new ui.button({
                     skin: "c9-toolbarbutton-glossy",
-                    "class"  : "preview",
+                    "class": "preview",
                     // tooltip  : "Preview the current document",
                     caption: "Preview",
                     submenu: submenu
@@ -99,13 +99,13 @@ define(function(require, exports, module) {
                 
                 menus.addItemByPath("Tools/Preview/", submenu, 1000, handle);
                 liveMenuItem = new ui.item({
-                    onclick: function(){ commands.exec("preview"); }
+                    onclick: function() { commands.exec("preview"); }
                 });
                 menus.addItemByPath("Tools/Preview/Live Preview Files",
                     liveMenuItem, 100, handle);
                 menus.addItemByPath("Tools/Preview/Preview Running Application", 
                     new ui.item({
-                        onclick: function(){
+                        onclick: function() {
                             commands.exec("preview", null, { server: true });
                         }
                     }), 200, handle);
@@ -123,11 +123,11 @@ define(function(require, exports, module) {
             var itemCtxTreePreview = new ui.item({
                 match: "file",
                 caption: "Preview",
-                isAvailable: function(){
+                isAvailable: function() {
                     return tree.selectedNode && !tree.selectedNode.isFolder
                         && (options.local || util.normalizePath(tree.selectedNode.path).charAt(0) != "~");
                 },
-                onclick: function(){
+                onclick: function() {
                     openPreview(tree.selected);
                 }
             });
@@ -145,7 +145,7 @@ define(function(require, exports, module) {
                     var path, pane;
                     var tab = tabs.focussedTab;
                     
-                    function findPane(){
+                    function findPane() {
                         if (!tab) return;
                         
                         // Find a good location to open preview side-by-side
@@ -154,7 +154,7 @@ define(function(require, exports, module) {
                         if (otherPreview && tab.pane != otherPreview) {
                             pane = otherPreview;
                         }
-                        else if (args.pane){
+                        else if (args.pane) {
                             pane = args.pane;
                         }
                         else {
@@ -183,7 +183,7 @@ define(function(require, exports, module) {
                                     if (json[name]["default"]) {
                                         commands.exec("run", null, {
                                             callback: function(proc) {
-                                                proc.on("started", function(){
+                                                proc.on("started", function() {
                                                     setTimeout(done, 1000);
                                                 });
                                             }
@@ -196,9 +196,9 @@ define(function(require, exports, module) {
                             }
                             
                             done();
-                        }
+                        };
                         
-                        function done(){
+                        function done() {
                             // Open Pane
                             pane = findPane();
                             
@@ -218,7 +218,7 @@ define(function(require, exports, module) {
                         }
                         else {
                             proc.execFile("nc", { 
-                                args: ["-zv", hostname , "80"] 
+                                args: ["-zv", hostname, "80"] 
                             }, cb);
                         }
                         
@@ -228,7 +228,7 @@ define(function(require, exports, module) {
                         path = args.path;
                     }
                     else {
-                        if (!tab ||  (tab.editor.type === "preview" || !tab.path))
+                        if (!tab || (tab.editor.type === "preview" || !tab.path))
                             return;
                         
                         pane = findPane();
@@ -246,17 +246,17 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "reloadpreview",
                 bindKey: { mac: "Command-Enter", win: "Ctrl-Enter" },
-                isAvailable: function(){
+                isAvailable: function() {
                     var path = tabs.focussedTab && tabs.focussedTab.path;
                     var tab = searchTab(path) || searchTab() || searchTab(-1);
                     return tab ? true : false;
                 },
-                exec: function(){
+                exec: function() {
                     var path = tabs.focussedTab && tabs.focussedTab.path;
                     var tab = searchTab(path) || searchTab() || searchTab(-1);
                     if (tab) {
                         if (tabs.focussedTab && tabs.focussedTab.document.changed) {
-                            save.save(tabs.focussedTab, null, function(){
+                            save.save(tabs.focussedTab, null, function() {
                                 tab.editor.reload();
                             });
                         }
@@ -281,16 +281,16 @@ define(function(require, exports, module) {
             if (commands.platform == "mac")
                 key = apf.hotkeys.toMacNotation(key);
             prefs.add({
-                "Run" : {
+                "Run": {
                     position: 600,
-                    "Preview" : {
+                    "Preview": {
                         position: 200,
-                        "Preview Running Apps" : {
+                        "Preview Running Apps": {
                             type: "checkbox",
                             path: "user/preview/@running_app",
                             position: 400
                         },
-                        "Default Previewer" : {
+                        "Default Previewer": {
                             type: "dropdown",
                             path: "user/preview/@default",
                             position: 500,
@@ -315,7 +315,7 @@ define(function(require, exports, module) {
         }
         
         var drawn = false;
-        function drawHandle(){
+        function drawHandle() {
             if (drawn) return;
             drawn = true;
             
@@ -327,7 +327,7 @@ define(function(require, exports, module) {
         }
         
         //Search through pages
-        function search(){
+        function search() {
             var pane;
             tabs.getTabs().every(function(tab) {
                 if (tab.editorType == "preview") {
@@ -376,7 +376,7 @@ define(function(require, exports, module) {
                         path: path
                     }
                 }
-            }, function(err, tab, done, existing){
+            }, function(err, tab, done, existing) {
                 if (existing)
                     tab.editor.reload();
                 
@@ -433,18 +433,18 @@ define(function(require, exports, module) {
              * The base URL for previewing files
              * @property {String} previewUrl
              */
-            get previewUrl(){ return previewUrl; },
+            get previewUrl() { return previewUrl; },
             
             /**
              * The menu shown to select the previewer
              * @property {Menu} previewMenu
              */
-            get previewMenu(){ return menu; },
+            get previewMenu() { return menu; },
             
             /**
              * 
              */
-            get settingsMenu(){ return mnuSettings; },
+            get settingsMenu() { return mnuSettings; },
             
             /**
              * 
@@ -482,7 +482,7 @@ define(function(require, exports, module) {
         
         handle.on("load", load);
         
-        function Preview(){
+        function Preview() {
             var plugin = new Editor("Ajax.org", main.consumes, extensions);
             var emit = plugin.getEmitter();
             
@@ -496,29 +496,29 @@ define(function(require, exports, module) {
                 var buttons = options.local ? [
                     btnBack = new ui.button({
                         skin: "c9-toolbarbutton-glossy",
-                        "class"  : "goback",
+                        "class": "goback",
                         tooltip: "Back",
                         width: "29",
                         disabled: true,
-                        onclick: function(e){ goBack(); }
+                        onclick: function(e) { goBack(); }
                     }),
                     btnForward = new ui.button({
                         skin: "c9-toolbarbutton-glossy",
-                        "class"  : "goforward",
+                        "class": "goforward",
                         tooltip: "Forward",
                         disabled: true,
                         width: "29",
-                        onclick: function(e){ goForward(); }
+                        onclick: function(e) { goForward(); }
                     })
                 ] : [];
                 
                 buttons.push(
                     new ui.button({
                         skin: "c9-toolbarbutton-glossy",
-                        "class" : "refresh",
+                        "class": "refresh",
                         tooltip: "Refresh",
                         width: "29",
-                        onclick: function(e){ reload(); }
+                        onclick: function(e) { reload(); }
                     })
                 );
                 
@@ -527,14 +527,14 @@ define(function(require, exports, module) {
                     anchors: "0 0 0 0",
                     childNodes: [
                         new ui.hsplitbox({
-                            "class"    : "toolbar-top previewbar",
+                            "class": "toolbar-top previewbar",
                             height: 35,
                             edge: "4",
                             padding: 3,
                             childNodes: [
                                 new ui.bar({
                                     width: options.local ? 87 : 29,
-                                    "class"    : "fakehbox aligncenter",
+                                    "class": "fakehbox aligncenter",
                                     childNodes: buttons
                                 }),
                                 new ui.hbox({
@@ -542,7 +542,7 @@ define(function(require, exports, module) {
                                     childNodes: [
                                         new ui.bar({
                                             id: "locationbar",
-                                            "class"    : "locationbar",
+                                            "class": "locationbar",
                                             flex: 1,
                                             childNodes: [
                                                 new ui.textbox({
@@ -563,15 +563,15 @@ define(function(require, exports, module) {
                                         btnPopOut = new ui.button({
                                             id: "btnPopOut",
                                             skin: "c9-toolbarbutton-glossy",
-                                            "class" : "popout",
+                                            "class": "popout",
                                             tooltip: "Pop Out Into New Window",
                                             width: "30",
-                                            onclick: function(e){ popout(); }
+                                            onclick: function(e) { popout(); }
                                         }),
                                         btnSettings = new ui.button({
                                             id: "btnSettings",
                                             skin: "c9-toolbarbutton-glossy",
-                                            "class" : "settings",
+                                            "class": "settings",
                                             tooltip: "Preview Settings",
                                             width: "30",
                                             submenu: mnuSettings.aml
@@ -606,13 +606,13 @@ define(function(require, exports, module) {
             
             /***** Method *****/
             
-            function reload(){
+            function reload() {
                 var session = currentSession;
                 if (session) 
                     session.previewer.reload();
             }
             
-            function popout(){
+            function popout() {
                 currentSession.previewer.popout();
             }
             
@@ -650,13 +650,13 @@ define(function(require, exports, module) {
                 }
             }
             
-            function goBack(){
+            function goBack() {
                 currentSession.previewer.navigate({ 
                     url: currentSession.back()
                 });
                 updateButtons();
             }
-            function goForward(){
+            function goForward() {
                 currentSession.previewer.navigate({ 
                     url: currentSession.forward()
                 });
@@ -682,7 +682,7 @@ define(function(require, exports, module) {
                 btnMode.setIcon(icon);
             }
             
-            function updateButtons(){
+            function updateButtons() {
                 if (!btnBack) return;
                 btnBack.setAttribute("disabled", currentSession.position < 1);
                 btnForward.setAttribute("disabled", 
@@ -691,7 +691,7 @@ define(function(require, exports, module) {
             
             /***** Lifecycle *****/
             
-            plugin.on("load", function(){
+            plugin.on("load", function() {
             });
             plugin.on("documentLoad", function(e) {
                 var doc = e.doc;
@@ -725,7 +725,7 @@ define(function(require, exports, module) {
                 session.previewer = findPreviewer(session.initPath, (e.state || 0).previewer);
                 session.previewer.loadDocument(doc, plugin, e.state);
                 
-                var handler = function(type, e){
+                var handler = function(type, e) {
                     if (currentSession == e.session)
                         emit(type, { 
                             previewer: session.previewer,
@@ -743,13 +743,13 @@ define(function(require, exports, module) {
                     session.stack.push(value);
                     session.position++;
                 };
-                session.back = function(){
+                session.back = function() {
                     if (session.position === 0) 
                         return false;
                     session.position--;
                     return session.stack[session.position];
                 };
-                session.forward = function(){
+                session.forward = function() {
                     if (session.position === session.stack.length - 1) 
                         return false;
                     session.position++;
@@ -759,7 +759,7 @@ define(function(require, exports, module) {
                 tabs.on("open", function(e) {
                     if (!session.previewTab && e.options && e.options.path == session.path) {
                         session.previewTab = e.tab;
-                        session.previewer.navigate({ url : session.path, tab: e.tab });
+                        session.previewer.navigate({ url: session.path, tab: e.tab });
                     }
                 }, doc);
             });
@@ -817,7 +817,7 @@ define(function(require, exports, module) {
                 
                 session.previewer.setState(e.doc, state);
             });
-            plugin.on("clear", function(){
+            plugin.on("clear", function() {
             });
             plugin.on("focus", function(e) {
                 if (currentSession)
@@ -827,11 +827,11 @@ define(function(require, exports, module) {
                 if (currentSession)
                     currentSession.previewer.blur(e);
             });
-            plugin.on("enable", function(){
+            plugin.on("enable", function() {
             });
-            plugin.on("disable", function(){
+            plugin.on("disable", function() {
             });
-            plugin.on("unload", function(){
+            plugin.on("unload", function() {
                 // unload all previewers?
             });
             
@@ -878,7 +878,7 @@ define(function(require, exports, module) {
                  * The HTML element to attach your custom previewer to.
                  * @property {HTMLElement} container
                  */
-                get container(){ return container; },
+                get container() { return container; },
                 
                 /**
                  * Trigger a reload of the content displayed in the previewer.

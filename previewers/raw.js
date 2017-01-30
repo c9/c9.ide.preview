@@ -18,7 +18,7 @@ define(function(require, exports, module) {
         });
         
         var drawn = false;
-        function draw(){
+        function draw() {
             if (drawn) return;
             drawn = true;
             
@@ -38,7 +38,7 @@ define(function(require, exports, module) {
         
         /***** Lifecycle *****/
         
-        plugin.on("load", function(){
+        plugin.on("load", function() {
             
         });
         plugin.on("sessionStart", function(e) {
@@ -56,7 +56,7 @@ define(function(require, exports, module) {
             
             // Hack to get text selection enabled
             var container = editor.getElement("container");
-            container.$isTextInput = function(){ return true };
+            container.$isTextInput = function() { return true; };
             container.disabled = false;
         });
         plugin.on("sessionEnd", function(e) {
@@ -89,13 +89,13 @@ define(function(require, exports, module) {
         });
         plugin.on("update", update);
         plugin.on("reload", update);
-        plugin.on("enable", function(){
+        plugin.on("enable", function() {
             
         });
-        plugin.on("disable", function(){
+        plugin.on("disable", function() {
             
         });
-        plugin.on("unload", function(){
+        plugin.on("unload", function() {
             drawn = false;
         });
         
